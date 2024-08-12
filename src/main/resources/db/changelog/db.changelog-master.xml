@@ -1,0 +1,12 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+<include file="db/changelog/2024-07-30-001-create-tables.xml"/>
+    <include file="db/changelog/2024-07-30-002-populate-tables.xml"/>
+    <include file="db/changelog/2024-08-01-003-update-database.xml"/>
+    <include file="db/changelog/2024-08-01-004-update-database.xml"/>
+    <include file="db/changelog/2024-08-05-005-update-occurrence-table-1.xml"/>
+    <include file="db/changelog/2024-08-07-006-update-email-job-table.xml"/>
+</databaseChangeLog>

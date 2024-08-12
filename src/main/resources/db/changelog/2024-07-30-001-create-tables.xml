@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Create REPETITON Table -->
+    <changeSet id="1-create-repetition-table" author="pavlinavasilevska">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="REPETITON"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE REPETITON (
+                                       id SERIAL PRIMARY KEY NOT NULL,
+                                       created_on TIMESTAMP NOT NULL,
+                                       uuid VARCHAR(255) UNIQUE NOT NULL,
+                                       frequency VARCHAR(255) NOT NULL,
+                                       number_of_tries INTEGER NOT NULL
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Create ROLE Table -->
+    <changeSet id="2-create-role-table" author="pavlinavasilevska">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ROLE"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE ROLE (
+                                  id SERIAL PRIMARY KEY NOT NULL,
+                                  uuid VARCHAR(255) UNIQUE NOT NULL,
+                                  role_name VARCHAR(255) UNIQUE NOT NULL,
+                                  created_on TIMESTAMP NOT NULL
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Create USERS Table -->
+    <changeSet id="3-create-users-table" author="pavlinavasilevska">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="USERS"/>
+            </not>
+        </preConditions>
+
+        <sql>
+            CREATE TABLE USERS (
+                                   id SERIAL PRIMARY KEY NOT NULL,
+                                   created_on TIMESTAMP NOT NULL,
+                                   uuid CHAR(36) NOT NULL,
+                                   username VARCHAR(255),
+                                   name VARCHAR(255),
+                                   surname VARCHAR(255),
+                                   email VARCHAR(255) NOT NULL,
+                                   password VARCHAR(255) NOT NULL
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Create USER_ROLES Table -->
+    <changeSet id="4-create-users-roles-table" author="pavlinavasilevska">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="USER_ROLES"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE USER_ROLES (
+                                        user_id INT NOT NULL,
+                                        role_id INT NOT NULL,
+                                        PRIMARY KEY (user_id, role_id),
+                                        FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE,
+                                        FOREIGN KEY (role_id) REFERENCES ROLE(id) ON DELETE CASCADE
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Create EMAIL_TEMPLATE Table -->
+    <changeSet id="5-create-email-template-table" author="pavlinavasilevska">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="EMAIL_TEMPLATE"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE EMAIL_TEMPLATE (
+                                            id SERIAL PRIMARY KEY,
+                                            subject VARCHAR(255) NOT NULL,
+                                            body TEXT NOT NULL,
+                                            created_on TIMESTAMP NOT NULL,
+                                            uuid VARCHAR(255) NOT NULL
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Create EMAIL_JOB Table -->
+    <changeSet id="6-create-email-job" author="pavlinavasilevska">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'email_job';
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE email_job (
+                                       id SERIAL PRIMARY KEY,
+                                       start_date TIMESTAMP NOT NULL,
+                                       end_date TIMESTAMP NOT NULL,
+                                       repetitive BOOLEAN NOT NULL,
+                                       enabled BOOLEAN NOT NULL,
+                                       email_template_id BIGINT NOT NULL,
+                                       status INTEGER,
+                                       last_sent TIMESTAMP,
+                                       sender_id BIGINT,
+                                       receivers VARCHAR(255),
+                                       repetition_id BIGINT,
+                                       error_description VARCHAR(255)  -- Added column
+            );
+
+            ALTER TABLE email_job
+                ADD CONSTRAINT fk_email_job_template
+                    FOREIGN KEY (email_template_id) REFERENCES email_template(id);
+
+            ALTER TABLE email_job
+                ADD CONSTRAINT fk_email_job_sender
+                    FOREIGN KEY (sender_id) REFERENCES users(id);
+
+            ALTER TABLE email_job
+                ADD CONSTRAINT fk_email_job_repetition
+                    FOREIGN KEY (repetition_id) REFERENCES REPETITON(id);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
