@@ -1,11 +1,5 @@
 package com.example.EmailSender.dto;
-
-import com.example.EmailSender.domain.EmailJob;
-import com.example.EmailSender.domain.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
