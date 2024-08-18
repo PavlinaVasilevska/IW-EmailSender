@@ -49,8 +49,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Optional<RoleDTO> getRoleByUuid(String uuid) {
-        return roleRepository.getRoleByUuid(uuid)
-                .map(roleMapper::roleToRoleDTO);
+        return Optional.ofNullable(roleRepository.getRoleByUuid(uuid)
+                .map(roleMapper::roleToRoleDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with UUID: " + uuid)));
     }
 
     @Override

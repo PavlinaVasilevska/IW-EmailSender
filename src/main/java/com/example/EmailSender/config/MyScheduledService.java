@@ -13,4 +13,6 @@ public class MyScheduledService {
         // Your task logic here
         System.out.println("Scheduled task executed at: " + LocalDateTime.now());
     }
+
+    //public void sendEmai()
 }

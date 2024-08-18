@@ -10,8 +10,6 @@ public interface OccurrenceService {
 
     Optional<OccurrenceDTO> getOccurrenceByUuid(String uuid);
 
-    Optional<OccurrenceDTO> getOccurrenceByEmailJobUuid(String emailJobUuid);
-
     List<OccurrenceDTO> getOccurrencesByStatus(Integer status);
 
     List<OccurrenceDTO> getAllOccurrences();

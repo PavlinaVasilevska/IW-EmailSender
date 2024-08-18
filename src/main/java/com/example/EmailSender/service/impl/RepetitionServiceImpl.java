@@ -1,5 +1,6 @@
 package com.example.EmailSender.service.impl;
 
+import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.repository.RepetitionRepository;
 import com.example.EmailSender.domain.Repetition;
 import com.example.EmailSender.dto.RepetitionDTO;
@@ -48,8 +49,9 @@ public class RepetitionServiceImpl implements RepetitionService {
 
     @Override
     public Optional<RepetitionDTO> getRepetitionByUuid(String uuid) {
-        Optional<Repetition> repetition = repetitionRepository.findByUuid(uuid);
-        return repetition.map(repetitionMapper::repetitionToRepetitionDTO);
+        Repetition repetition = repetitionRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Repetition not found with UUID: " + uuid));
+        return Optional.ofNullable(repetitionMapper.repetitionToRepetitionDTO(repetition));
     }
 
     @Override
@@ -83,8 +85,12 @@ public class RepetitionServiceImpl implements RepetitionService {
         }
     }
 
+    @Override
     public List<RepetitionDTO> findByFrequency(String frequency) {
         List<Repetition> repetitions = repetitionRepository.findByFrequency(frequency);
+        if (repetitions.isEmpty()) {
+            throw new ResourceNotFoundException("No repetitions found with frequency: " + frequency);
+        }
         return repetitions.stream()
                 .map(repetitionMapper::repetitionToRepetitionDTO)
                 .collect(Collectors.toList());
@@ -93,6 +99,9 @@ public class RepetitionServiceImpl implements RepetitionService {
     @Override
     public List<RepetitionDTO> findByNumberOfTries(Integer numberOfTries) {
         List<Repetition> repetitions = repetitionRepository.findByNumberOfTries(numberOfTries);
+        if (repetitions.isEmpty()) {
+            throw new ResourceNotFoundException("No repetitions found with number of tries: " + numberOfTries);
+        }
         return repetitions.stream()
                 .map(repetitionMapper::repetitionToRepetitionDTO)
                 .collect(Collectors.toList());

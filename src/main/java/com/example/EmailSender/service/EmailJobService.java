@@ -10,11 +10,9 @@ import java.util.Optional;
 public interface EmailJobService {
     EmailJobDTO createEmailJob(EmailJobDTO emailJobDTO);
 
-    EmailJobDTO getEmailJobByUuid(String uuid);
+    Optional<EmailJobDTO> getEmailJobByUuid(String uuid);
 
-    Optional<EmailJobDTO> getEmailJobBySender(User sender);
-
-    Optional<EmailJobDTO> getEmailJobByEmailTemplate(EmailTemplate emailTemplate);
+    Optional<EmailJobDTO> getEmailJobBySenderUuid(String senderUuid);
 
     List<EmailJobDTO> getAllEmailJobs();
 

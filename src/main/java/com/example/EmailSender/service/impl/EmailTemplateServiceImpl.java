@@ -30,26 +30,34 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     public Optional<EmailTemplateDTO> getEmailTemplateByUuid(String uuid) {
-        return emailTemplateRepository.findByUuid(uuid)
-                .map(emailTemplateMapper::emailTemplateToEmailTemplateDTO);
+        EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with uuid: '%s' not found", uuid)));
+        return Optional.ofNullable(emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate));
     }
 
     @Override
     public Optional<EmailTemplateDTO> getEmailTemplateBySubject(String subject) {
-        return emailTemplateRepository.findBySubject(subject)
-                .map(emailTemplateMapper::emailTemplateToEmailTemplateDTO);
+        EmailTemplate emailTemplate = emailTemplateRepository.findBySubject(subject)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with this subject: '%s' not found", subject)));
+        return Optional.ofNullable(emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate));
     }
 
     @Override
     public List<EmailTemplateDTO> getEmailTemplatesByBodyContaining(String keyword) {
         List<EmailTemplate> emailTemplates = emailTemplateRepository.findByBodyContaining(keyword);
+
+        if (emailTemplates.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("No email templates found containing the keyword: '%s'", keyword));
+        }
+
         return emailTemplateMapper.emailTemplatesToEmailTemplateDTOs(emailTemplates);
     }
 
     @Override
     public Optional<EmailTemplateDTO> getEmailTemplateByBody(String body) {
-        return emailTemplateRepository.findByBody(body)
-                .map(emailTemplateMapper::emailTemplateToEmailTemplateDTO);
+        EmailTemplate emailTemplate = emailTemplateRepository.findByBody(body)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with this body: '%s' not found", body)));
+        return Optional.ofNullable(emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate));
     }
 
     @Override

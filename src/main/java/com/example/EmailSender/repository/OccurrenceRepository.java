@@ -10,7 +10,6 @@ import java.util.Optional;
 public interface OccurrenceRepository extends JpaRepository<Occurrence, Long> {
 
     Optional<Occurrence> findByUuid(String uuid);
-    Optional<Occurrence>findByEmailJobUuid(String emailJobUuid);
     List<Occurrence> findByStatus(Integer status);
     void deleteByUuid(String  uuid);
 

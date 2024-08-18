@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "REPETITON")
+@Table(name = "REPETITION")
 public class Repetition extends BaseEntity {
 
     @Column(name = "frequency", nullable = false)

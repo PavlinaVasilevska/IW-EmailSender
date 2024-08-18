@@ -70,27 +70,26 @@ public class EmailJobServiceImpl implements EmailJobService {
     }
 
     @Override
-    public EmailJobDTO getEmailJobByUuid(String uuid) {
-        // Attempt to find the EmailJob by UUID
-        EmailJob emailJob = emailJobRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("EmailJob with UUID " + uuid + " not found"));
-
-        // Map the EmailJob entity to EmailJobDTO
-        return emailJobMapper.toDto(emailJob);
-    }
-
-
-    @Override
-    public Optional<EmailJobDTO> getEmailJobBySender(User sender) {
-        return emailJobRepository.findBySender(sender)
-                .map(emailJobMapper::toDto);
+    public Optional<EmailJobDTO> getEmailJobByUuid(String uuid) {
+      EmailJob emailJob=emailJobRepository.findByUuid(uuid)
+              .orElseThrow(()-> new ResourceNotFoundException("EmailJob with UUID " + uuid + " not found"));
+      return Optional.of(emailJobMapper.toDto(emailJob));
     }
 
     @Override
-    public Optional<EmailJobDTO> getEmailJobByEmailTemplate(EmailTemplate emailTemplate) {
-        return emailJobRepository.findByEmailTemplate(emailTemplate)
-                .map(emailJobMapper::toDto);
+    public Optional<EmailJobDTO> getEmailJobBySenderUuid(String senderUuid) {
+        // Fetch User by UUID
+        User user = userRepository.findByUuid(senderUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("User with UUID " + senderUuid + " not found"));
+
+        // Fetch EmailJob by the found User
+        EmailJob emailJob = emailJobRepository.findBySender(user)
+                .orElseThrow(() -> new ResourceNotFoundException("EmailJob for sender with UUID " + senderUuid + " not found"));
+
+        // Map EmailJob to EmailJobDTO and return
+        return Optional.ofNullable(emailJobMapper.toDto(emailJob));
     }
+
 
     @Override
     public List<EmailJobDTO> getAllEmailJobs() {
@@ -102,7 +101,7 @@ public class EmailJobServiceImpl implements EmailJobService {
 
     @Override
     public EmailJobDTO updateEmailJob(String uuid, EmailJobDTO emailJobDTO) {
-        EmailJob emailJob = emailJobRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("EmailJob not found"));
+        EmailJob emailJob = emailJobRepository.findByUuid(uuid).orElseThrow(() -> new ResourceNotFoundException("EmailJob with UUID " + uuid + " not found"));
         emailJobMapper.updateFromDto(emailJobDTO, emailJob);
         EmailJob updatedEmailJob = emailJobRepository.save(emailJob);
         return emailJobMapper.toDto(updatedEmailJob);

@@ -1,4 +1,4 @@
-package com.example.EmailSender.Enum;
+package com.example.EmailSender.enumeration;
 
 public enum RepetitionEnum {
     DAILY("daily"),

@@ -1,5 +1,7 @@
 package com.example.EmailSender.service.impl;
 import com.example.EmailSender.domain.Role;
+import com.example.EmailSender.dto.AuthRequest;
+import com.example.EmailSender.dto.AuthResponse;
 import com.example.EmailSender.dto.RoleDTO;
 import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.mapper.RoleMapper;
@@ -10,6 +12,9 @@ import com.example.EmailSender.dto.UserDTO;
 import com.example.EmailSender.mapper.UserMapper;
 import com.example.EmailSender.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +31,51 @@ public class UserServiceImpl implements UserService {
     private final RoleMapper roleMapper;
     private final RoleRepository roleRepository;
 
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
+    }
+
     @Override
     public UserDTO createUser(UserDTO userDTO) {
+
+        String email = userDTO.getEmail();
+        String username = userDTO.getUsername();
+
+        // Check if a user with the given email already exists
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalStateException(String.format("User with the email address '%s' already exists.", email));
+        }
+
+        // Check if a user with the given username already exists
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new IllegalStateException(String.format("User with the username '%s' already exists.", username));
+        }
+
+        // Map the UserDTO to User entity
         User user = userMapper.userDTOToUser(userDTO);
-        user.setUuid(UUID.randomUUID().toString());
+
+        // Ensure name and surname are not null or empty
+        if (userDTO.getName() == null || userDTO.getName().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+        if (userDTO.getSurname() == null || userDTO.getSurname().isEmpty()) {
+            throw new IllegalArgumentException("Surname cannot be null or empty.");
+        }
+        user.setName(userDTO.getName());
+        user.setSurname(userDTO.getSurname());
 
         // Handle the roles sent in the request
         Set<Role> roles = new HashSet<>();
         if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
             for (RoleDTO roleDTO : userDTO.getRoles()) {
-                String roleName = roleDTO.getName(); // Adjust to match the JSON field name
+                if (roleDTO.getName() == null || roleDTO.getName().isEmpty()) {
+                    throw new IllegalArgumentException("Role name cannot be null or empty.");
+                }
+                String roleName = roleDTO.getName();
 
                 // Find the role by its name
                 Optional<Role> roleOptional = roleRepository.findByName(roleName);
@@ -49,31 +89,33 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("Role information is missing.");
         }
 
-        user.setRoles(roles); // Set the roles on the user
+        // Set the roles on the user
+        user.setRoles(roles);
+
+        // Set the username
+        user.setUsername(username);
 
         // Save the user and return the DTO
         User savedUser = userRepository.save(user);
         return userMapper.userToUserDTO(savedUser);
     }
 
-
-    
     @Override
     public Optional<UserDTO> getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .map(userMapper::userToUserDTO);
+        User user=userRepository.findByUsername(username).orElseThrow(()-> new ResourceNotFoundException("User not found: " + username));
+        return Optional.of(userMapper.userToUserDTO(user));
     }
 
     @Override
     public Optional<UserDTO> getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(userMapper::userToUserDTO);
+        User user=userRepository.findByUsername(email).orElseThrow(()-> new ResourceNotFoundException("User not found: " + email));
+        return Optional.of(userMapper.userToUserDTO(user));
     }
 
     @Override
     public Optional<UserDTO> getUserByUuid(String uuid) {
-        return userRepository.findByUuid(uuid)
-                .map(userMapper::userToUserDTO);
+        User user=userRepository.findByUsername(uuid).orElseThrow(()-> new ResourceNotFoundException("User not found: " + uuid));
+        return Optional.of(userMapper.userToUserDTO(user));
     }
 
     @Override
@@ -94,7 +136,9 @@ public class UserServiceImpl implements UserService {
         user.setName(userDTO.getName());
         user.setSurname(userDTO.getSurname());
         user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+//            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        }
 
         // Handle roles
         if (userDTO.getRoles() != null) {
@@ -110,12 +154,12 @@ public class UserServiceImpl implements UserService {
         return userMapper.userToUserDTO(updatedUser);
     }
 
-
-
     @Override
     public void deleteUser(String uuid) {
         User user = userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with uuid: " + uuid));
         userRepository.delete(user);
     }
+
 }
+

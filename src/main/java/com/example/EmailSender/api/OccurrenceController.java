@@ -1,15 +1,16 @@
 package com.example.EmailSender.api;
 import com.example.EmailSender.dto.OccurrenceDTO;
-import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
+import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.OccurrenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/occurrences")
+@RequestMapping(EndPoints.OCCURRENCES)
 public class OccurrenceController {
 
     private final OccurrenceService occurrenceService;
@@ -26,17 +27,8 @@ public class OccurrenceController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<OccurrenceDTO> getOccurrenceByUuid(@PathVariable String uuid) {
-        return occurrenceService.getOccurrenceByUuid(uuid)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found with uuid: " + uuid));
-    }
-
-    @GetMapping("/email-job/{emailJobUuid}")
-    public ResponseEntity<OccurrenceDTO> getOccurrenceByEmailJobUuid(@PathVariable String emailJobUuid) {
-        return occurrenceService.getOccurrenceByEmailJobUuid(emailJobUuid)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found for email job uuid: " + emailJobUuid));
+    public Optional<ResponseEntity<OccurrenceDTO>> getOccurrenceByUuid(@PathVariable String uuid) {
+        return occurrenceService.getOccurrenceByUuid(uuid).map(ResponseEntity::ok);
     }
 
     @GetMapping

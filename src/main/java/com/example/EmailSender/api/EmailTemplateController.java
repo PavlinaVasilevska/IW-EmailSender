@@ -1,19 +1,17 @@
 package com.example.EmailSender.api;
 
 import com.example.EmailSender.dto.EmailTemplateDTO;
-import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
+import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.EmailTemplateService;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/email-templates")
+@RequestMapping(EndPoints.EMAIL_TEMPLATES)
 
 public class EmailTemplateController {
 
@@ -30,17 +28,14 @@ public class EmailTemplateController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<EmailTemplateDTO> getEmailTemplateByUuid(@PathVariable String uuid) {
-        return emailTemplateService.getEmailTemplateByUuid(uuid)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("EmailTemplate not found with UUID: " + uuid));
+    public Optional<ResponseEntity<EmailTemplateDTO>> getEmailTemplateByUuid(@PathVariable String uuid) {
+        return emailTemplateService.getEmailTemplateByUuid(uuid).map(ResponseEntity::ok);
 
     }
     @GetMapping("/subject/{subject}")
     public ResponseEntity<EmailTemplateDTO> getEmailTemplateBySubject(@PathVariable String subject) {
         Optional<EmailTemplateDTO> emailTemplateDTO = emailTemplateService.getEmailTemplateBySubject(subject);
-        return emailTemplateDTO.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return emailTemplateDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/body/contains/{keyword}")

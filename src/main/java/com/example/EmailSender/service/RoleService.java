@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-@Service
+
 public interface RoleService{
     RoleDTO createRole(RoleDTO roleDTO);
     Optional<RoleDTO> getRoleByUuid(String uuid);

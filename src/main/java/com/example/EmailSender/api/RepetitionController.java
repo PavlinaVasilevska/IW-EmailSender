@@ -1,14 +1,15 @@
 package com.example.EmailSender.api;
 import com.example.EmailSender.dto.RepetitionDTO;
-import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
+import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.RepetitionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/repetitions")
+@RequestMapping(EndPoints.REPETITIONS)
 public class RepetitionController {
 
     private RepetitionService repetitionService;
@@ -24,10 +25,8 @@ public class RepetitionController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<RepetitionDTO> getRepetitionByUuid(@PathVariable String uuid) {
-        // Call the service method and handle the Optional
-        RepetitionDTO repetitionDTO = repetitionService.getRepetitionByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Repetition not found with UUID: " + uuid));
+    public ResponseEntity<Optional<RepetitionDTO>> getRepetitionByUuid(@PathVariable String uuid) {
+        Optional<RepetitionDTO> repetitionDTO = repetitionService.getRepetitionByUuid(uuid);
         return ResponseEntity.ok(repetitionDTO);
     }
 
@@ -53,7 +52,7 @@ public class RepetitionController {
     public ResponseEntity<List<RepetitionDTO>> findByFrequency(@PathVariable String frequency) {
         List<RepetitionDTO> repetitions = repetitionService.findByFrequency(frequency);
         if (repetitions.isEmpty()) {
-            return ResponseEntity.noContent().build(); // No content found
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(repetitions);
     }
@@ -62,8 +61,13 @@ public class RepetitionController {
     public ResponseEntity<List<RepetitionDTO>> findByNumberOfTries(@PathVariable Integer numberOfTries) {
         List<RepetitionDTO> repetitions = repetitionService.findByNumberOfTries(numberOfTries);
         if (repetitions.isEmpty()) {
-            return ResponseEntity.noContent().build(); // No content found
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(repetitions);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Endpoint is working");
     }
 }

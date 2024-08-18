@@ -40,14 +40,9 @@ public class OccurrenceServiceImpl implements OccurrenceService {
 
     @Override
     public Optional<OccurrenceDTO> getOccurrenceByUuid(String uuid) {
-        Optional<Occurrence> occurrence = occurrenceRepository.findByUuid(uuid);
-        return occurrence.map(occurrenceMapper::toDTO);
-    }
-
-    @Override
-    public Optional<OccurrenceDTO> getOccurrenceByEmailJobUuid(String emailJobUuid) {
-        Optional<Occurrence> occurrence = occurrenceRepository.findByEmailJobUuid(emailJobUuid);
-        return occurrence.map(occurrenceMapper::toDTO);
+        Occurrence occurrence = occurrenceRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found with UUID: " + uuid));
+        return Optional.of(occurrenceMapper.toDTO(occurrence));
     }
 
     @Override
@@ -69,7 +64,7 @@ public class OccurrenceServiceImpl implements OccurrenceService {
     @Override
     public OccurrenceDTO updateOccurrence(String uuid, OccurrenceDTO occurrenceDTO) {
         Occurrence occurrence = occurrenceRepository.findByUuid(uuid)
-                .orElseThrow(() -> new RuntimeException("Occurrence not found with uuid: " + uuid));
+                .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found with uuid: " + uuid));
 
         occurrence.setStatus(occurrenceDTO.getStatus());
         occurrence.setErrorDescription(occurrenceDTO.getErrorDescription());
@@ -90,7 +85,7 @@ public class OccurrenceServiceImpl implements OccurrenceService {
         if (occurrence.isPresent()) {
             occurrenceRepository.deleteByUuid(uuid);
         } else {
-            throw new RuntimeException("Occurrence not found with uuid: " + uuid);
+            throw new ResourceNotFoundException("Occurrence not found with uuid: " + uuid);
         }
     }
 }

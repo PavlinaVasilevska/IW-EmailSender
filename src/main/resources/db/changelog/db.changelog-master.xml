@@ -9,4 +9,5 @@
     <include file="db/changelog/2024-08-01-004-update-database.xml"/>
     <include file="db/changelog/2024-08-05-005-update-occurrence-table-1.xml"/>
     <include file="db/changelog/2024-08-07-006-update-email-job-table.xml"/>
+    <include file="db/changelog/2024-08-17-007-update-database.xml"/>
 </databaseChangeLog>

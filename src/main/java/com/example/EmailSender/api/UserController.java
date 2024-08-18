@@ -1,9 +1,9 @@
 package com.example.EmailSender.api;
 
 import com.example.EmailSender.dto.UserDTO;
-import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
+import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.UserService;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/users")
+@RequestMapping(EndPoints.USERS)
 public class UserController {
 
     private final UserService userService;
@@ -27,25 +27,21 @@ public class UserController {
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
-        return userService.getUserByUsername(username)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+    @GetMapping("username/{username}")
+    public Optional<ResponseEntity<UserDTO>> getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username).map(ResponseEntity::ok);
+
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-        return userService.getUserByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    public Optional<ResponseEntity<UserDTO>> getUserByEmail(@PathVariable String email) {
+        return userService.getUserByEmail(email).map(ResponseEntity::ok);
     }
 
     @GetMapping("/uuid/{uuid}")
-    public ResponseEntity<UserDTO> getUserByUuid(@PathVariable String uuid) {
-        return userService.getUserByUuid(uuid)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with UUID: " + uuid));
+    public Optional<ResponseEntity<UserDTO>> getUserByUuid(@PathVariable String uuid) {
+        return userService.getUserByUuid(uuid).map(ResponseEntity::ok);
+
     }
 
     @GetMapping
@@ -60,9 +56,11 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> deleteUser(@PathVariable String uuid) {
         userService.deleteUser(uuid);
         return ResponseEntity.noContent().build();
     }
+
 }
