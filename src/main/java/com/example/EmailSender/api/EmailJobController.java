@@ -1,8 +1,6 @@
 package com.example.EmailSender.api;
-import com.example.EmailSender.domain.EmailTemplate;
 import com.example.EmailSender.dto.EmailJobDTO;
 import com.example.EmailSender.infrastructure.EndPoints;
-import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.repository.EmailTemplateRepository;
 import com.example.EmailSender.repository.UserRepository;
 import com.example.EmailSender.service.EmailJobService;

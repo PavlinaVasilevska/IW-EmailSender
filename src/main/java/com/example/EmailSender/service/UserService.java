@@ -1,6 +1,4 @@
 package com.example.EmailSender.service;
-import com.example.EmailSender.dto.AuthRequest;
-import com.example.EmailSender.dto.AuthResponse;
 import com.example.EmailSender.dto.UserDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
