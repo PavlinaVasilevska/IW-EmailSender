@@ -8,8 +8,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class EmailTemplateDTO extends BaseDTO{
 
     @NotBlank(message = "Subject is mandatory")

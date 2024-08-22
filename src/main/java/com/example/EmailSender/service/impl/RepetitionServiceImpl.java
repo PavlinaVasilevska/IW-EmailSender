@@ -1,5 +1,6 @@
 package com.example.EmailSender.service.impl;
 
+import com.example.EmailSender.enumeration.RepetitionEnum;
 import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.repository.RepetitionRepository;
 import com.example.EmailSender.domain.Repetition;
@@ -29,7 +30,7 @@ public class RepetitionServiceImpl implements RepetitionService {
         if (repetitionDTO == null) {
             throw new IllegalArgumentException("RepetitionDTO cannot be null");
         }
-        if (repetitionDTO.getFrequency() == null || repetitionDTO.getFrequency().isEmpty()) {
+        if (repetitionDTO.getFrequency() == null) {
             throw new IllegalArgumentException("Frequency cannot be null or empty");
         }
         if (repetitionDTO.getNumberOfTries() == null || repetitionDTO.getNumberOfTries() < 1) {
@@ -37,41 +38,45 @@ public class RepetitionServiceImpl implements RepetitionService {
         }
 
         // Convert DTO to entity
-        Repetition repetition = repetitionMapper.repetitionDTOToRepetition(repetitionDTO);
+        Repetition repetition = repetitionMapper.toEntity(repetitionDTO);
 
 
         // Save entity
         Repetition savedRepetition = repetitionRepository.save(repetition);
 
         // Convert back to DTO
-        return repetitionMapper.repetitionToRepetitionDTO(savedRepetition);
+        return repetitionMapper.toDto(savedRepetition);
     }
 
     @Override
     public Optional<RepetitionDTO> getRepetitionByUuid(String uuid) {
         Repetition repetition = repetitionRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Repetition not found with UUID: " + uuid));
-        return Optional.ofNullable(repetitionMapper.repetitionToRepetitionDTO(repetition));
+        return Optional.ofNullable(repetitionMapper.toDto(repetition));
     }
 
     @Override
     public List<RepetitionDTO> getAllRepetitions() {
         List<Repetition> repetitions = repetitionRepository.findAll();
         return repetitions.stream()
-                .map(repetitionMapper::repetitionToRepetitionDTO)
+                .map(repetitionMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public RepetitionDTO updateRepetition(String uuid, RepetitionDTO repetitionDTO) {
         Optional<Repetition> existingRepetition = repetitionRepository.findByUuid(uuid);
+
         if (existingRepetition.isPresent()) {
+            // Update repetition
             Repetition repetition = existingRepetition.get();
-            repetition.setFrequency(repetitionDTO.getFrequency());
+            repetition.setFrequency(repetitionDTO.getFrequency()); // Directly use the enum
             repetition.setNumberOfTries(repetitionDTO.getNumberOfTries());
             Repetition updatedRepetition = repetitionRepository.save(repetition);
-            return repetitionMapper.repetitionToRepetitionDTO(updatedRepetition);
+
+            return repetitionMapper.toDto(updatedRepetition);
         }
+
         throw new RuntimeException("Repetition not found with uuid: " + uuid);
     }
 
@@ -81,7 +86,7 @@ public class RepetitionServiceImpl implements RepetitionService {
         if (repetition.isPresent()) {
             repetitionRepository.delete(repetition.get());
         } else {
-            throw new RuntimeException("Repetition not found with uuid: " + uuid);
+            throw new ResourceNotFoundException("Repetition not found with uuid: " + uuid);
         }
     }
 
@@ -92,7 +97,7 @@ public class RepetitionServiceImpl implements RepetitionService {
             throw new ResourceNotFoundException("No repetitions found with frequency: " + frequency);
         }
         return repetitions.stream()
-                .map(repetitionMapper::repetitionToRepetitionDTO)
+                .map(repetitionMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -103,9 +108,10 @@ public class RepetitionServiceImpl implements RepetitionService {
             throw new ResourceNotFoundException("No repetitions found with number of tries: " + numberOfTries);
         }
         return repetitions.stream()
-                .map(repetitionMapper::repetitionToRepetitionDTO)
+                .map(repetitionMapper::toDto)
                 .collect(Collectors.toList());
     }
+
 
 
 }

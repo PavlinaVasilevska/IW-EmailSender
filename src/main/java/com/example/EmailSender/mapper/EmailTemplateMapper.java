@@ -2,22 +2,18 @@ package com.example.EmailSender.mapper;
 import com.example.EmailSender.domain.EmailTemplate;
 import com.example.EmailSender.dto.EmailTemplateDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface EmailTemplateMapper {
 
-    EmailTemplateMapper INSTANCE = Mappers.getMapper(EmailTemplateMapper.class);
+    EmailTemplateDTO toDto(EmailTemplate emailTemplate);
 
+    EmailTemplate toEntity(EmailTemplateDTO emailTemplateDTO);
 
-    EmailTemplateDTO emailTemplateToEmailTemplateDTO(EmailTemplate emailTemplate);
+    List<EmailTemplateDTO> toDtoList(List<EmailTemplate> emailTemplates);
 
-    EmailTemplate emailTemplateDTOToEmailTemplate(EmailTemplateDTO emailTemplateDTO);
-
-    List<EmailTemplateDTO> emailTemplatesToEmailTemplateDTOs(List<EmailTemplate> emailTemplates);
-
-    List<EmailTemplate> emailTemplateDTOsToEmailTemplates(List<EmailTemplateDTO> emailTemplateDTOs);
+    List<EmailTemplate> toEntityList(List<EmailTemplateDTO> emailTemplateDTOs);
 }

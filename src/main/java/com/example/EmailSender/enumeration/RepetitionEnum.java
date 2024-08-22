@@ -16,4 +16,21 @@ public enum RepetitionEnum {
         return repetitionType;
     }
 
+    @Override
+    public String toString() {
+        return repetitionType;
+    }
+
+    public static RepetitionEnum fromString(String repetitionType) {
+        if (repetitionType == null) {
+            throw new IllegalArgumentException("Repetition type cannot be null");
+        }
+        for (RepetitionEnum repetition : RepetitionEnum.values()) {
+            if (repetition.repetitionType.equalsIgnoreCase(repetitionType)) {
+                return repetition;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant with text " + repetitionType);
+    }
+
 }

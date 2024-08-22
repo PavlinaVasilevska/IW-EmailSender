@@ -3,8 +3,14 @@ package com.example.EmailSender.repository;
 import com.example.EmailSender.domain.EmailJob;
 import com.example.EmailSender.domain.EmailTemplate;
 import com.example.EmailSender.domain.User;
+import com.example.EmailSender.enumeration.RepetitionEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface EmailJobRepository extends JpaRepository<EmailJob, Long> {
@@ -12,4 +18,12 @@ public interface EmailJobRepository extends JpaRepository<EmailJob, Long> {
     Optional<EmailJob> findBySender(User sender);
     Optional<EmailJob> findByEmailTemplate(EmailTemplate emailTemplate);
 
+
+    @Query("SELECT e FROM EmailJob e " +
+            "WHERE e.enabled = true " +
+            "AND (e.endDate IS NULL OR e.endDate >= :currentDate) " +
+            "AND e.startDate <= :currentDate " +
+            "AND e.repetition.frequency = :frequency")
+    List<EmailJob> findActiveMailJobs(@Param("currentDate") LocalDateTime currentDate,
+                                     @Param("frequency") RepetitionEnum frequency);
 }

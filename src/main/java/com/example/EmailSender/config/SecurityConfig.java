@@ -33,37 +33,37 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/email-templates", "/api/users", "/authenticate", "/register").permitAll()
-//                        .requestMatchers("/api/roles").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authenticationProvider(daoAuthenticationProvider()) // Use DaoAuthenticationProvider
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
-
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        return http
-//                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless sessions
+//                .csrf(AbstractHttpConfigurer::disable)
 //                .authorizeHttpRequests(authz -> authz
-//                        .anyRequest().permitAll() // Permit all requests
+//                        .requestMatchers("/api/email-templates", "/api/users", "/authenticate", "/register","/send-email").permitAll()
+////                        .requestMatchers("/api/roles").hasRole("ADMIN")
+//                        .anyRequest().authenticated()
 //                )
 //                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless sessions
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                )
 //                .authenticationProvider(daoAuthenticationProvider()) // Use DaoAuthenticationProvider
-//                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class) // Add custom JWT filter
+//                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
 //                .build();
 //    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless sessions
+                .authorizeHttpRequests(authz -> authz
+                        .anyRequest().permitAll() // Permit all requests
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless sessions
+                )
+                .authenticationProvider(daoAuthenticationProvider()) // Use DaoAuthenticationProvider
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class) // Add custom JWT filter
+                .build();
+    }
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {

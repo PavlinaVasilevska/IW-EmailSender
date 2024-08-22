@@ -1,7 +1,5 @@
 package com.example.EmailSender.service;
 import com.example.EmailSender.dto.RoleDTO;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,17 +1,14 @@
 package com.example.EmailSender.dto;
 
+import com.example.EmailSender.enumeration.StatusEnum;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class OccurrenceDTO extends BaseDTO{
-    private Integer status;
+    private StatusEnum status;
 
     private String errorDescription;
 

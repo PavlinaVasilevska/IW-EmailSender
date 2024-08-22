@@ -1,5 +1,6 @@
 package com.example.EmailSender.api;
 import com.example.EmailSender.dto.OccurrenceDTO;
+import com.example.EmailSender.enumeration.StatusEnum;
 import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.OccurrenceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,12 @@ public class OccurrenceController {
     public ResponseEntity<OccurrenceDTO> createOccurrence(@RequestBody OccurrenceDTO occurrenceDTO) {
         OccurrenceDTO createdOccurrence = occurrenceService.createOccurrence(occurrenceDTO);
         return ResponseEntity.ok(createdOccurrence);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<OccurrenceDTO>> getOccurrencesByStatus(@PathVariable("status") StatusEnum status) {
+        List<OccurrenceDTO> occurrences = occurrenceService.getOccurrencesByStatus(status);
+        return ResponseEntity.ok(occurrences);
     }
 
     @GetMapping("/{uuid}")

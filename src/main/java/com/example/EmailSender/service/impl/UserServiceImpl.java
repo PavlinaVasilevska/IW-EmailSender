@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // Map the UserDTO to User entity
-        User user = userMapper.userDTOToUser(userDTO);
+        User user = userMapper.toEntity(userDTO);
 
         // Ensure name and surname are not null or empty
         if (userDTO.getName() == null || userDTO.getName().isEmpty()) {
@@ -97,32 +97,32 @@ public class UserServiceImpl implements UserService {
 
         // Save the user and return the DTO
         User savedUser = userRepository.save(user);
-        return userMapper.userToUserDTO(savedUser);
+        return userMapper.toDto(savedUser);
     }
 
     @Override
     public Optional<UserDTO> getUserByUsername(String username) {
         User user=userRepository.findByUsername(username).orElseThrow(()-> new ResourceNotFoundException("User not found: " + username));
-        return Optional.of(userMapper.userToUserDTO(user));
+        return Optional.of(userMapper.toDto(user));
     }
 
     @Override
     public Optional<UserDTO> getUserByEmail(String email) {
         User user=userRepository.findByUsername(email).orElseThrow(()-> new ResourceNotFoundException("User not found: " + email));
-        return Optional.of(userMapper.userToUserDTO(user));
+        return Optional.of(userMapper.toDto(user));
     }
 
     @Override
     public Optional<UserDTO> getUserByUuid(String uuid) {
         User user=userRepository.findByUsername(uuid).orElseThrow(()-> new ResourceNotFoundException("User not found: " + uuid));
-        return Optional.of(userMapper.userToUserDTO(user));
+        return Optional.of(userMapper.toDto(user));
     }
 
     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(userMapper::userToUserDTO)
+                .map(userMapper::toDto)
                 .toList();
     }
 
@@ -131,27 +131,40 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with uuid: " + uuid));
 
-        // Update fields
-        user.setUsername(userDTO.getUsername());
-        user.setName(userDTO.getName());
-        user.setSurname(userDTO.getSurname());
-        user.setEmail(userDTO.getEmail());
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
-//            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        // Update fields only if they are provided
+        if (userDTO.getUsername() != null && !userDTO.getUsername().isEmpty()) {
+            user.setUsername(userDTO.getUsername());
         }
 
-        // Handle roles
-        if (userDTO.getRoles() != null) {
+        if (userDTO.getName() != null && !userDTO.getName().isEmpty()) {
+            user.setName(userDTO.getName());
+        }
+
+        if (userDTO.getSurname() != null && !userDTO.getSurname().isEmpty()) {
+            user.setSurname(userDTO.getSurname());
+        }
+
+        if (userDTO.getEmail() != null && !userDTO.getEmail().isEmpty()) {
+            user.setEmail(userDTO.getEmail());
+        }
+
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+            user.setPassword(userDTO.getPassword());
+        }
+
+        // Handle roles only if provided
+        if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
             Set<Role> roles = userDTO.getRoles().stream()
-                    .filter(roleDTO -> roleDTO.getName() != null)  // Filter out roles with null names
+                    .filter(roleDTO -> roleDTO.getName() != null && !roleDTO.getName().isEmpty())  // Filter out roles with null or empty names
                     .map(roleDTO -> roleRepository.findByName(roleDTO.getName())
                             .orElseThrow(() -> new ResourceNotFoundException("Role not found with name: " + roleDTO.getName())))
                     .collect(Collectors.toSet());
             user.setRoles(roles);
         }
 
+        // Save the updated user and return the DTO
         User updatedUser = userRepository.save(user);
-        return userMapper.userToUserDTO(updatedUser);
+        return userMapper.toDto(updatedUser);
     }
 
     @Override

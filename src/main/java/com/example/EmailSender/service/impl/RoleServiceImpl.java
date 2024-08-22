@@ -37,27 +37,27 @@ public class RoleServiceImpl implements RoleService {
         }
 
         // Convert DTO to entity
-        Role role = roleMapper.roleDTOToRole(roleDTO);
+        Role role = roleMapper.toEntity(roleDTO);
         role.setUuid(UUID.randomUUID().toString());
 
         // Save the entity
         Role savedRole = roleRepository.save(role);
 
         // Convert entity back to DTO
-        return roleMapper.roleToRoleDTO(savedRole);
+        return roleMapper.toDto(savedRole);
     }
 
     @Override
     public Optional<RoleDTO> getRoleByUuid(String uuid) {
         return Optional.ofNullable(roleRepository.getRoleByUuid(uuid)
-                .map(roleMapper::roleToRoleDTO)
+                .map(roleMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with UUID: " + uuid)));
     }
 
     @Override
     public List<RoleDTO> getAllRoles() {
         List<Role> roles = roleRepository.findAll();
-        return roleMapper.rolesToRoleDTOs(roles);
+        return roleMapper.toDtoList(roles);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class RoleServiceImpl implements RoleService {
 
         existingRole.setName(roleDTO.getName());
         Role updatedRole = roleRepository.save(existingRole);
-        return roleMapper.roleToRoleDTO(updatedRole);
+        return roleMapper.toDto(updatedRole);
     }
 
     @Override

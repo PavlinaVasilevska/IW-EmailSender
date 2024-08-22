@@ -23,23 +23,23 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     public EmailTemplateDTO createEmailTemplate(EmailTemplateDTO emailTemplateDTO) {
-        EmailTemplate emailTemplate = emailTemplateMapper.emailTemplateDTOToEmailTemplate(emailTemplateDTO);
+        EmailTemplate emailTemplate = emailTemplateMapper.toEntity(emailTemplateDTO);
         emailTemplate = emailTemplateRepository.save(emailTemplate);
-        return emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate);
+        return emailTemplateMapper.toDto(emailTemplate);
     }
 
     @Override
     public Optional<EmailTemplateDTO> getEmailTemplateByUuid(String uuid) {
         EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with uuid: '%s' not found", uuid)));
-        return Optional.ofNullable(emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with UUID '%s' not found", uuid)));
+        return Optional.ofNullable(emailTemplateMapper.toDto(emailTemplate));
     }
 
     @Override
     public Optional<EmailTemplateDTO> getEmailTemplateBySubject(String subject) {
         EmailTemplate emailTemplate = emailTemplateRepository.findBySubject(subject)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with this subject: '%s' not found", subject)));
-        return Optional.ofNullable(emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with subject '%s' not found", subject)));
+        return Optional.ofNullable(emailTemplateMapper.toDto(emailTemplate));
     }
 
     @Override
@@ -47,41 +47,35 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         List<EmailTemplate> emailTemplates = emailTemplateRepository.findByBodyContaining(keyword);
 
         if (emailTemplates.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("No email templates found containing the keyword: '%s'", keyword));
+            throw new ResourceNotFoundException(String.format("No email templates found containing the keyword '%s'", keyword));
         }
 
-        return emailTemplateMapper.emailTemplatesToEmailTemplateDTOs(emailTemplates);
+        return emailTemplateMapper.toDtoList(emailTemplates);
     }
 
     @Override
     public Optional<EmailTemplateDTO> getEmailTemplateByBody(String body) {
         EmailTemplate emailTemplate = emailTemplateRepository.findByBody(body)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with this body: '%s' not found", body)));
-        return Optional.ofNullable(emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with body '%s' not found", body)));
+        return Optional.ofNullable(emailTemplateMapper.toDto(emailTemplate));
     }
 
     @Override
     public List<EmailTemplateDTO> getAllEmailTemplates() {
         List<EmailTemplate> emailTemplates = emailTemplateRepository.findAll();
-        return emailTemplateMapper.emailTemplatesToEmailTemplateDTOs(emailTemplates);
+        return emailTemplateMapper.toDtoList(emailTemplates);
     }
 
     @Override
     public EmailTemplateDTO updateEmailTemplate(String uuid, EmailTemplateDTO emailTemplateDTO) {
-        // Fetch the EmailTemplate using the UUID
         EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("EmailTemplate not found"));
 
-        // Update the fields of the EmailTemplate
         emailTemplate.setSubject(emailTemplateDTO.getSubject());
         emailTemplate.setBody(emailTemplateDTO.getBody());
-        // Update other fields if needed
 
-        // Save the updated EmailTemplate
         emailTemplate = emailTemplateRepository.save(emailTemplate);
-
-        // Convert the updated EmailTemplate to DTO and return
-        return emailTemplateMapper.emailTemplateToEmailTemplateDTO(emailTemplate);
+        return emailTemplateMapper.toDto(emailTemplate);
     }
 
     @Override

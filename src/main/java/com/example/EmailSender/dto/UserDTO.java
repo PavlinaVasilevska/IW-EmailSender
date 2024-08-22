@@ -12,8 +12,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class UserDTO extends BaseDTO{
     @JsonProperty("username")
     @NotBlank(message = "Username cannot be blank")

@@ -4,9 +4,8 @@ import com.example.EmailSender.infrastructure.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
-import java.util.Date;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -15,10 +14,10 @@ import java.util.Set;
 public class EmailJob extends BaseEntity {
 
     @Column(name = "start_date", nullable = false)
-    private Date startDate;
+    private LocalDateTime startDate;
 
-    @Column(name = "end_date", nullable = false)
-    private Date endDate;
+    @Column(name = "end_date")
+    private LocalDateTime  endDate;
 
     @Column(name = "enabled", nullable = false)
     private boolean enabled;

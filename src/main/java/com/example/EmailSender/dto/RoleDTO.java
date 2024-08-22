@@ -9,8 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class RoleDTO extends BaseDTO {
 
     @JsonProperty("roleName")

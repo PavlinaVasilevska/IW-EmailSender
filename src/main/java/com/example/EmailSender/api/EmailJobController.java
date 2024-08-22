@@ -1,13 +1,16 @@
 package com.example.EmailSender.api;
 import com.example.EmailSender.dto.EmailJobDTO;
+import com.example.EmailSender.enumeration.RepetitionEnum;
 import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.repository.EmailTemplateRepository;
 import com.example.EmailSender.repository.UserRepository;
 import com.example.EmailSender.service.EmailJobService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +64,5 @@ public class EmailJobController {
         Optional<EmailJobDTO> emailJobDTO = emailJobService.getEmailJobBySenderUuid(senderUuid);
         return ResponseEntity.ok(emailJobDTO);
     }
+    }
 
-
-}

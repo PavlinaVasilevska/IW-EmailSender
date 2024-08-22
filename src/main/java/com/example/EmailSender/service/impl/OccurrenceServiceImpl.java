@@ -1,6 +1,7 @@
 package com.example.EmailSender.service.impl;
 
 import com.example.EmailSender.domain.EmailJob;
+import com.example.EmailSender.enumeration.StatusEnum;
 import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.repository.EmailJobRepository;
 import com.example.EmailSender.repository.OccurrenceRepository;
@@ -28,64 +29,81 @@ public class OccurrenceServiceImpl implements OccurrenceService {
     @Override
     public OccurrenceDTO createOccurrence(OccurrenceDTO occurrenceDTO) {
         Occurrence occurrence = occurrenceMapper.toEntity(occurrenceDTO);
-        EmailJob emailJob=emailJobRepository.findByUuid(occurrenceDTO.getEmailJob().getUuid())
+
+        EmailJob emailJob = emailJobRepository.findByUuid(occurrenceDTO.getEmailJob().getUuid())
                 .orElseThrow(() -> new ResourceNotFoundException("EmailJob not found"));
         occurrence.setEmailJob(emailJob);
         occurrence.setStatus(occurrenceDTO.getStatus());
         occurrence.setErrorDescription(occurrenceDTO.getErrorDescription());
 
         Occurrence savedOccurrence = occurrenceRepository.save(occurrence);
-        return occurrenceMapper.toDTO(savedOccurrence);
+        return occurrenceMapper.toDto(savedOccurrence);
     }
 
     @Override
     public Optional<OccurrenceDTO> getOccurrenceByUuid(String uuid) {
         Occurrence occurrence = occurrenceRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found with UUID: " + uuid));
-        return Optional.of(occurrenceMapper.toDTO(occurrence));
+        return Optional.of(occurrenceMapper.toDto(occurrence));
     }
 
     @Override
-    public List<OccurrenceDTO> getOccurrencesByStatus(Integer status) {
+    public List<OccurrenceDTO> getOccurrencesByStatus(StatusEnum status) {
         List<Occurrence> occurrences = occurrenceRepository.findByStatus(status);
+        if (occurrences.isEmpty()) {
+            throw new ResourceNotFoundException("No occurrences found with status: " + status);
+        }
         return occurrences.stream()
-                .map(occurrenceMapper::toDTO)
+                .map(occurrenceMapper::toDto) // Convert entity to DTO
                 .collect(Collectors.toList());
     }
-
     @Override
     public List<OccurrenceDTO> getAllOccurrences() {
         List<Occurrence> occurrences = occurrenceRepository.findAll();
+        if (occurrences.isEmpty()) {
+            throw new ResourceNotFoundException("No occurrences found.");
+        }
+        return occurrenceMapper.toDtoList(occurrences);
+    }
+
+    @Override
+    public List<OccurrenceDTO> getOccurrencesByEmailJobUuid(String emailJobUuid) {
+        List<Occurrence> occurrences = occurrenceRepository.findByEmailJobUuid(emailJobUuid);
+        if (occurrences.isEmpty()) {
+            throw new ResourceNotFoundException("No occurrences found for EmailJob with UUID: " + emailJobUuid);
+        }
         return occurrences.stream()
-                .map(occurrenceMapper::toDTO)
+                .map(occurrenceMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public OccurrenceDTO updateOccurrence(String uuid, OccurrenceDTO occurrenceDTO) {
         Occurrence occurrence = occurrenceRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found with uuid: " + uuid));
+                .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found with UUID: " + uuid));
 
         occurrence.setStatus(occurrenceDTO.getStatus());
         occurrence.setErrorDescription(occurrenceDTO.getErrorDescription());
 
-        // Map the EmailJobDTO from the DTO to the entity and set it
-        if (occurrenceDTO.getEmailJob() != null) {
-            // Convert EmailJobDTO to EmailJob entity
-            occurrence.setEmailJob(occurrenceMapper.toEntity(occurrenceDTO).getEmailJob());
-        }
-
         Occurrence updatedOccurrence = occurrenceRepository.save(occurrence);
-        return occurrenceMapper.toDTO(updatedOccurrence);
+        return occurrenceMapper.toDto(updatedOccurrence);
     }
 
     @Override
     public void deleteOccurrence(String uuid) {
-        Optional<Occurrence> occurrence = occurrenceRepository.findByUuid(uuid);
-        if (occurrence.isPresent()) {
-            occurrenceRepository.deleteByUuid(uuid);
-        } else {
-            throw new ResourceNotFoundException("Occurrence not found with uuid: " + uuid);
+        Occurrence occurrence = occurrenceRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Occurrence not found with UUID: " + uuid));
+        occurrenceRepository.delete(occurrence);
+    }
+
+    @Override
+    public List<OccurrenceDTO> getOccurrencesByErrorDescription(String errorDescription) {
+        List<Occurrence> occurrences = occurrenceRepository.findByErrorDescription(errorDescription);
+        if (occurrences.isEmpty()) {
+            throw new ResourceNotFoundException("No occurrences found with error description: " + errorDescription);
         }
+        return occurrences.stream()
+                .map(occurrenceMapper::toDto) // Convert entity to DTO
+                .collect(Collectors.toList());
     }
 }

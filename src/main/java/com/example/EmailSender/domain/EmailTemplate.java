@@ -4,9 +4,7 @@ import com.example.EmailSender.infrastructure.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -14,8 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 
 @Table(name = "EMAIL_TEMPLATE")
 public class EmailTemplate extends BaseEntity {
