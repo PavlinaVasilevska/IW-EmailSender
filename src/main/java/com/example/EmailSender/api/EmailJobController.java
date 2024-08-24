@@ -1,43 +1,33 @@
 package com.example.EmailSender.api;
 import com.example.EmailSender.dto.EmailJobDTO;
-import com.example.EmailSender.enumeration.RepetitionEnum;
 import com.example.EmailSender.infrastructure.EndPoints;
-import com.example.EmailSender.repository.EmailTemplateRepository;
-import com.example.EmailSender.repository.UserRepository;
 import com.example.EmailSender.service.EmailJobService;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping(EndPoints.EMAIL_JOBS)
 public class EmailJobController {
 
     private final EmailJobService emailJobService;
-    private final UserRepository userRepository;
-    private final EmailTemplateRepository emailTemplateRepository;
 
-    public EmailJobController(EmailJobService emailJobService, UserRepository userRepository, EmailTemplateRepository emailTemplateRepository) {
+    public EmailJobController(EmailJobService emailJobService) {
         this.emailJobService = emailJobService;
-        this.userRepository = userRepository;
-        this.emailTemplateRepository = emailTemplateRepository;
     }
 
 
     @PostMapping
     public ResponseEntity<EmailJobDTO> createEmailJob(@RequestBody EmailJobDTO emailJobDTO) {
         EmailJobDTO createdEmailJob = emailJobService.createEmailJob(emailJobDTO);
-        return new ResponseEntity<>(createdEmailJob, HttpStatus.CREATED);
+        return ResponseEntity.status(200).body(createdEmailJob);
     }
 
     @GetMapping("/{uuid}")
-    public Optional<ResponseEntity<EmailJobDTO>> getEmailJobByUuid(@PathVariable String uuid) {
-        return emailJobService.getEmailJobByUuid(uuid).map(ResponseEntity::ok);
+    public ResponseEntity<EmailJobDTO> getEmailJobByUuid(@PathVariable String uuid) {
+        EmailJobDTO emailJob = emailJobService.getEmailJobDtoByUuid(uuid);
+        return ResponseEntity.ok(emailJob);
 
     }
 
@@ -60,9 +50,9 @@ public class EmailJobController {
     }
 
     @GetMapping("/sender/{senderUuid}")
-    public ResponseEntity<Optional<EmailJobDTO>> getEmailJobBySender(@PathVariable String senderUuid) {
-        Optional<EmailJobDTO> emailJobDTO = emailJobService.getEmailJobBySenderUuid(senderUuid);
-        return ResponseEntity.ok(emailJobDTO);
+    public ResponseEntity<List<EmailJobDTO>> getEmailJobBySender(@PathVariable String senderUuid) {
+        List<EmailJobDTO> emailJobs = emailJobService.getEmailJobBySenderUuid(senderUuid);
+        return ResponseEntity.ok(emailJobs);
     }
-    }
+}
 

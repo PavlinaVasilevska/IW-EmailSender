@@ -1,14 +1,11 @@
 package com.example.EmailSender.api;
-
 import com.example.EmailSender.dto.EmailTemplateDTO;
 import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.EmailTemplateService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(EndPoints.EMAIL_TEMPLATES)
@@ -24,18 +21,19 @@ public class EmailTemplateController {
     @PostMapping
     public ResponseEntity<EmailTemplateDTO> createEmailTemplate(@Valid @RequestBody EmailTemplateDTO emailTemplateDTO) {
         EmailTemplateDTO createdEmailTemplate = emailTemplateService.createEmailTemplate(emailTemplateDTO);
-        return new ResponseEntity<>(createdEmailTemplate, HttpStatus.CREATED);
+        return ResponseEntity.status(200).body(createdEmailTemplate);
     }
 
     @GetMapping("/{uuid}")
-    public Optional<ResponseEntity<EmailTemplateDTO>> getEmailTemplateByUuid(@PathVariable String uuid) {
-        return emailTemplateService.getEmailTemplateByUuid(uuid).map(ResponseEntity::ok);
+    public ResponseEntity<EmailTemplateDTO> getEmailTemplateByUuid(@PathVariable String uuid) {
+        EmailTemplateDTO emailTemplate = emailTemplateService.getEmailTemplateByUuid(uuid);
+        return ResponseEntity.ok(emailTemplate);
 
     }
     @GetMapping("/subject/{subject}")
     public ResponseEntity<EmailTemplateDTO> getEmailTemplateBySubject(@PathVariable String subject) {
-        Optional<EmailTemplateDTO> emailTemplateDTO = emailTemplateService.getEmailTemplateBySubject(subject);
-        return emailTemplateDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        EmailTemplateDTO emailTemplate = emailTemplateService.getEmailTemplateBySubject(subject);
+        return ResponseEntity.ok(emailTemplate);
     }
 
     @GetMapping("/body/contains/{keyword}")
@@ -46,9 +44,8 @@ public class EmailTemplateController {
 
     @GetMapping("/body/{body}")
     public ResponseEntity<EmailTemplateDTO> getEmailTemplateByBody(@PathVariable String body) {
-        Optional<EmailTemplateDTO> emailTemplateDTO = emailTemplateService.getEmailTemplateByBody(body);
-        return emailTemplateDTO.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        EmailTemplateDTO emailTemplate= emailTemplateService.getEmailTemplateByBody(body);
+        return ResponseEntity.ok(emailTemplate);
     }
 
     @GetMapping

@@ -1,14 +1,12 @@
 package com.example.EmailSender.api;
-
 import com.example.EmailSender.dto.UserDTO;
 import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.UserService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(EndPoints.USERS)
@@ -20,26 +18,30 @@ public class UserController {
         this.userService = userService;
     }
 
+
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         UserDTO createdUser = userService.createUser(userDTO);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        return ResponseEntity.status(200).body(createdUser);
     }
 
-    @GetMapping("username/{username}")
-    public Optional<ResponseEntity<UserDTO>> getUserByUsername(@PathVariable String username) {
-        return userService.getUserByUsername(username).map(ResponseEntity::ok);
-
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
+        UserDTO user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/email/{email}")
-    public Optional<ResponseEntity<UserDTO>> getUserByEmail(@PathVariable String email) {
-        return userService.getUserByEmail(email).map(ResponseEntity::ok);
+    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+        UserDTO user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/uuid/{uuid}")
-    public Optional<ResponseEntity<UserDTO>> getUserByUuid(@PathVariable String uuid) {
-        return userService.getUserByUuid(uuid).map(ResponseEntity::ok);
+    public ResponseEntity<UserDTO> getUserByUuid(@PathVariable String uuid) {
+        UserDTO user = userService.getUserByUuid(uuid);
+        return ResponseEntity.ok(user);
+
 
     }
 
@@ -50,7 +52,7 @@ public class UserController {
     }
 
     @PutMapping("/{uuid}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable String uuid, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable String uuid,@Valid @RequestBody UserDTO userDTO) {
         UserDTO updatedUser = userService.updateUser(uuid, userDTO);
         return ResponseEntity.ok(updatedUser);
     }

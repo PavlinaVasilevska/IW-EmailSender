@@ -4,17 +4,17 @@ import com.example.EmailSender.dto.EmailJobDTO;
 import com.example.EmailSender.enumeration.RepetitionEnum;
 import com.example.EmailSender.enumeration.StatusEnum;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface EmailJobService {
     EmailJobDTO createEmailJob(EmailJobDTO emailJobDTO);
 
-    Optional<EmailJobDTO> getEmailJobByUuid(String uuid);
+    EmailJobDTO getEmailJobDtoByUuid(String uuid);
 
-    Optional<EmailJobDTO> getEmailJobBySenderUuid(String senderUuid);
+    EmailJob getEmailJobByUuid(String uuid);
+
+    List<EmailJobDTO> getEmailJobBySenderUuid(String senderUuid);
 
     List<EmailJobDTO> getAllEmailJobs();
 
@@ -24,9 +24,6 @@ public interface EmailJobService {
 
     List<EmailJob> getActiveEmailJobs(LocalDateTime currentDate, RepetitionEnum frequency);
 
-    void recordOccurrence(EmailJob emailJob, StatusEnum status, String errorDescription);
+    void saveOccurrence(EmailJob emailJob, StatusEnum status, String errorDescription);
 
-//    void notifyAdmin(EmailJob emailJob);
-
-    //void processEmailJobs(LocalDate currentDate, RepetitionEnum frequency);
 }

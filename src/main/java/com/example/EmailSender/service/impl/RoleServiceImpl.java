@@ -1,18 +1,18 @@
 package com.example.EmailSender.service.impl;
 
-import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
-import com.example.EmailSender.repository.RoleRepository;
 import com.example.EmailSender.domain.Role;
 import com.example.EmailSender.dto.RoleDTO;
+import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.mapper.RoleMapper;
+import com.example.EmailSender.repository.RoleRepository;
 import com.example.EmailSender.service.RoleService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
+
 
 @Service
 @Transactional
@@ -24,62 +24,69 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO createRole(RoleDTO roleDTO) {
-        // Validate the input DTO
-        if (roleDTO == null || roleDTO.getName() == null || roleDTO.getName().isEmpty()) {
-            throw new IllegalArgumentException("RoleDTO or its name cannot be null or empty");
-        }
-
-        // Check if a role with the same name already exists
-        Optional<Role> existingRole = roleRepository.findByName(roleDTO.getName());
-        if (existingRole.isPresent()) {
-            // Return an appropriate response or throw an exception
-            throw new ResourceNotFoundException("Role with name " + roleDTO.getName() + " already exists");
-        }
-
-        // Convert DTO to entity
         Role role = roleMapper.toEntity(roleDTO);
-        role.setUuid(UUID.randomUUID().toString());
-
-        // Save the entity
         Role savedRole = roleRepository.save(role);
-
-        // Convert entity back to DTO
         return roleMapper.toDto(savedRole);
     }
 
     @Override
-    public Optional<RoleDTO> getRoleByUuid(String uuid) {
-        return Optional.ofNullable(roleRepository.getRoleByUuid(uuid)
-                .map(roleMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with UUID: " + uuid)));
+    public RoleDTO getRoleByUuid(String uuid) {
+        Role role = roleRepository.findByUuid(uuid);
+        if(role == null) {
+            throw new ResourceNotFoundException("Role with UUID: " + uuid + " not found");
+        }
+        return roleMapper.toDto(role);
+    }
+
+    @Override
+    public RoleDTO getRoleByName(String name) {
+        Role role = roleRepository.findByName(name);
+        if(role== null)
+        {
+            throw new ResourceNotFoundException("Role with UUID: " + name + " not found");
+        }
+        return roleMapper.toDto(role);
+    }
+
+    @Override
+    public Role getRoleByname(String name) {
+        Role role = roleRepository.findByName(name);
+        if(role== null)
+        {
+            throw new ResourceNotFoundException("Role with UUID: " + name + " not found");
+        }
+
+        return role;
     }
 
     @Override
     public List<RoleDTO> getAllRoles() {
         List<Role> roles = roleRepository.findAll();
-        return roleMapper.toDtoList(roles);
+        return roles.stream()
+                .map(roleMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public RoleDTO updateRole(String uuid, RoleDTO roleDTO) {
-        Role existingRole = roleRepository.getRoleByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Role with UUID " + uuid + " not found"));
-
-        // Ensure the name field is not null or empty
-        if (roleDTO.getName() == null || roleDTO.getName().isEmpty()) {
-            throw new IllegalArgumentException("Role name cannot be null or empty");
+        Role existingRole = roleRepository.findByUuid(uuid);
+        if(existingRole == null)
+        {
+            throw new ResourceNotFoundException("Role with UUID: " + uuid + " not found");
         }
 
         existingRole.setName(roleDTO.getName());
-        Role updatedRole = roleRepository.save(existingRole);
+        Role updatedRole=roleRepository.save(existingRole);
         return roleMapper.toDto(updatedRole);
     }
 
     @Override
     public void deleteRole(String uuid) {
-        Role existingRole = roleRepository.getRoleByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Role with UUID " + uuid + " not found"));
-
-        roleRepository.delete(existingRole);
+        Role role = roleRepository.findByUuid(uuid);
+        if(role == null)
+        {
+            throw new ResourceNotFoundException("Role with UUID: " + uuid + " not found");
+        }
+        roleRepository.delete(role);
     }
 }

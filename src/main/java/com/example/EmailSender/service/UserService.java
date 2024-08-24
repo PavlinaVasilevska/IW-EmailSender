@@ -1,22 +1,24 @@
 package com.example.EmailSender.service;
+import com.example.EmailSender.domain.User;
 import com.example.EmailSender.dto.UserDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 
 public interface UserService extends UserDetailsService {
 
     UserDTO createUser(UserDTO userDTO);
 
-    Optional<UserDTO> getUserByUsername(String username);
+   UserDTO getUserByUsername(String username);
 
-    Optional<UserDTO> getUserByEmail(String email);
+    UserDTO getUserByEmail(String email);
 
-    Optional<UserDTO> getUserByUuid(String uuid);
+    UserDTO getUserByUuid(String uuid);
+
+    User getByUuid(String uuid);
 
     List<UserDTO> getAllUsers();
 

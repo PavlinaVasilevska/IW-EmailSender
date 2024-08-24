@@ -4,11 +4,8 @@ import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.RoleService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(EndPoints.ROLES)
@@ -24,12 +21,18 @@ public class RoleController {
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<RoleDTO> createRole(@RequestBody @Valid RoleDTO roleDTO) {
         RoleDTO createdRole = roleService.createRole(roleDTO);
-        return ResponseEntity.ok(createdRole);
+        return ResponseEntity.status(200).body(createdRole);
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<Optional<RoleDTO>> getRoleByUuid(@PathVariable String uuid) {
-        Optional<RoleDTO> role = roleService.getRoleByUuid(uuid);
+    @GetMapping("uuid/{uuid}")
+    public ResponseEntity<RoleDTO> getRoleByUuid(@PathVariable String uuid) {
+        RoleDTO role = roleService.getRoleByUuid(uuid);
+        return ResponseEntity.ok(role);
+    }
+
+    @GetMapping("name/{name}")
+    public ResponseEntity<RoleDTO> getRoleByName(@PathVariable String name) {
+        RoleDTO role = roleService.getRoleByName(name);
         return ResponseEntity.ok(role);
     }
 

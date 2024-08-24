@@ -9,10 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface EmailTemplateRepository extends JpaRepository <EmailTemplate, Long> {
-    Optional<EmailTemplate> findByUuid(String uuid);
-    Optional<EmailTemplate> findBySubject(String subject);
+    EmailTemplate findByUuid(String uuid);
+    EmailTemplate findBySubject(String subject);
     List<EmailTemplate> findByBodyContaining(String keyword);
-    Optional<EmailTemplate> findByBody(String body);
+    EmailTemplate findByBody(String body);
     void deleteByUuid(String uuid);
     boolean existsByUuid(String uuid);
 }

@@ -5,23 +5,28 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface OccurrenceRepository extends JpaRepository<Occurrence, Long> {
 
-    Optional<Occurrence> findByUuid(String uuid);
+ Occurrence findByUuid(String uuid);
 
-    @Query("SELECT o FROM Occurrence o WHERE o.status = :status")
-    List<Occurrence> findByStatus(@Param("status") StatusEnum status);
+ @Query("SELECT o FROM Occurrence o WHERE o.status = :status")
+ List<Occurrence> findByStatus(@Param("status") StatusEnum status);
 
-    void deleteByUuid(String uuid);
+ void deleteByUuid(String uuid);
 
-    List<Occurrence> findByEmailJobUuid(String emailJobUuid);
+ @Query("SELECT o FROM Occurrence o WHERE o.emailJob.uuid = :emailJobUuid")
+ List<Occurrence> findByEmailJobUuid(@Param("emailJobUuid") String emailJobUuid);
 
-    // Find occurrences by error description
-    @Query("SELECT o FROM Occurrence o WHERE o.errorDescription = :errorDescription")
-    List<Occurrence> findByErrorDescription(@Param("errorDescription") String errorDescription);
+ @Query("SELECT o FROM Occurrence o WHERE o.emailJob.uuid = :emailJobUuid AND o.createdOn >= :dateFrom AND o.createdOn <= :dateTo ORDER BY o.createdOn DESC")
+ List<Occurrence> findOccurrencesForEmailJob(
+         @Param("emailJobUuid") String emailJobUuid,
+         @Param("dateFrom") LocalDateTime dateFrom,
+         @Param("dateTo") LocalDateTime dateTo);
+
+ @Query("SELECT o FROM Occurrence o WHERE o.errorDescription = :errorDescription")
+ List<Occurrence> findByErrorDescription(@Param("errorDescription") String errorDescription);
 }

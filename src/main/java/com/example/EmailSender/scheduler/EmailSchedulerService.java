@@ -8,5 +8,5 @@ import java.time.LocalDateTime;
 public interface EmailSchedulerService {
     void performScheduledTasks();
 
-    void processAndSendEmails(LocalDateTime currentDate, RepetitionEnum frequency);
+//    void processAndSendEmails(LocalDateTime currentDate, RepetitionEnum frequency);
 }

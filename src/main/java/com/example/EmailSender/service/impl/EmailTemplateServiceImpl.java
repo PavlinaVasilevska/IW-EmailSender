@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -29,17 +28,30 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public Optional<EmailTemplateDTO> getEmailTemplateByUuid(String uuid) {
-        EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with UUID '%s' not found", uuid)));
-        return Optional.ofNullable(emailTemplateMapper.toDto(emailTemplate));
+    public EmailTemplate getTemplateByUuid(String uuid) {
+        EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid);
+        if (emailTemplate == null) {
+            throw new ResourceNotFoundException("Email template with uuid " + uuid + " not found");
+        }
+        return emailTemplate;
     }
 
     @Override
-    public Optional<EmailTemplateDTO> getEmailTemplateBySubject(String subject) {
-        EmailTemplate emailTemplate = emailTemplateRepository.findBySubject(subject)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with subject '%s' not found", subject)));
-        return Optional.ofNullable(emailTemplateMapper.toDto(emailTemplate));
+    public EmailTemplateDTO getEmailTemplateByUuid(String uuid) {
+        EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid);
+        if (emailTemplate == null) {
+            throw new ResourceNotFoundException("Email template with uuid " + uuid + " not found");
+        }
+        return emailTemplateMapper.toDto(emailTemplate);
+    }
+
+    @Override
+    public EmailTemplateDTO getEmailTemplateBySubject(String subject) {
+        EmailTemplate emailTemplate = emailTemplateRepository.findBySubject(subject);
+        if (emailTemplate == null) {
+            throw new ResourceNotFoundException("Email template with subject " + subject + " not found");
+        }
+        return emailTemplateMapper.toDto(emailTemplate);
     }
 
     @Override
@@ -54,10 +66,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public Optional<EmailTemplateDTO> getEmailTemplateByBody(String body) {
-        EmailTemplate emailTemplate = emailTemplateRepository.findByBody(body)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Email template with body '%s' not found", body)));
-        return Optional.ofNullable(emailTemplateMapper.toDto(emailTemplate));
+    public EmailTemplateDTO getEmailTemplateByBody(String body) {
+        EmailTemplate emailTemplate = emailTemplateRepository.findByBody(body);
+        if (emailTemplate == null) {
+            throw new ResourceNotFoundException(String.format("No email template found with body '%s'", body));
+        }
+        return emailTemplateMapper.toDto(emailTemplate);
     }
 
     @Override
@@ -68,8 +82,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     public EmailTemplateDTO updateEmailTemplate(String uuid, EmailTemplateDTO emailTemplateDTO) {
-        EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("EmailTemplate not found"));
+        EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid);
+        if (emailTemplate == null) {
+            throw new ResourceNotFoundException("Email template with uuid " + uuid + " not found");
+        }
 
         emailTemplate.setSubject(emailTemplateDTO.getSubject());
         emailTemplate.setBody(emailTemplateDTO.getBody());

@@ -1,15 +1,14 @@
 package com.example.EmailSender.dto;
+import com.example.EmailSender.enumeration.RepetitionEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
-public class EmailJobDTO extends BaseDTO{
+
+public class EmailJobDTO extends BaseDTO {
 
     private UserDTO sender;
 
@@ -21,14 +20,11 @@ public class EmailJobDTO extends BaseDTO{
     @NotNull(message = "End date is mandatory")
     private LocalDateTime endDate;
 
-    @NotBlank(message = "Repetition is mandatory")
-    private RepetitionDTO repetition;
+    @NotNull(message = "Repetition frequency is mandatory")
+    private RepetitionEnum frequency;
 
     @NotNull(message = "Enabled status is mandatory")
     private Boolean enabled;
 
     private String receivers;
-
-
-
 }

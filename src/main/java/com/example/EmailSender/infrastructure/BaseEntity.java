@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -17,7 +17,7 @@ public abstract class BaseEntity {
     private Long id;
 
     @Column(name = "created_on", updatable = false)
-    private Date createdOn;
+    private LocalDateTime createdOn;
 
     @Column(name = "uuid", updatable = false)
     private String uuid;
@@ -25,7 +25,7 @@ public abstract class BaseEntity {
     @PrePersist
     public void init() {
         uuid = UUID.randomUUID().toString().replaceAll("-", "");
-        createdOn = new Date();
+        createdOn=LocalDateTime.now();
     }
 
 }

@@ -1,9 +1,7 @@
 package com.example.EmailSender.domain;
-
 import com.example.EmailSender.enumeration.StatusEnum;
 import com.example.EmailSender.infrastructure.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 

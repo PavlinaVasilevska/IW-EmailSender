@@ -15,8 +15,6 @@ import java.util.Set;
 @Mapper(componentModel = "spring", uses = RoleMapper.class)
 public interface UserMapper {
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
-
     UserDTO toDto(User user);
 
     User toEntity(UserDTO userDTO);

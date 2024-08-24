@@ -1,5 +1,4 @@
 package com.example.EmailSender.api;
-
 import com.example.EmailSender.dto.AuthRequest;
 import com.example.EmailSender.dto.AuthResponse;
 import com.example.EmailSender.dto.UserDTO;

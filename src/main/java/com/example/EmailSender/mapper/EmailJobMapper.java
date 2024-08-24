@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class, RepetitionMapper.class, EmailTemplateMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class, EmailTemplateMapper.class})
 public interface EmailJobMapper {
 
     EmailJobDTO toDto(EmailJob emailJob);
