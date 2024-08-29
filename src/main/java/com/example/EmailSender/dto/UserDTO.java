@@ -2,6 +2,7 @@ package com.example.EmailSender.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,12 +15,15 @@ import java.util.Set;
 public class UserDTO extends BaseDTO{
     @JsonProperty("username")
     @NotBlank(message = "Username cannot be blank")
+    @NotNull(message = "Username cannot be null")
     private String username;
 
     @JsonProperty("name")
+    @NotBlank(message = "Name cannot be blank")
     private String name;
 
     @JsonProperty("surname")
+    @NotBlank(message = "Surname cannot be blank")
     private String surname;
 
     @JsonProperty("email")

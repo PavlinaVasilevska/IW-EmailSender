@@ -2,6 +2,8 @@ package com.example.EmailSender.mapper;
 import com.example.EmailSender.domain.EmailTemplate;
 import com.example.EmailSender.dto.EmailTemplateDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 
 import java.util.List;
@@ -16,4 +18,8 @@ public interface EmailTemplateMapper {
     List<EmailTemplateDTO> toDtoList(List<EmailTemplate> emailTemplates);
 
     List<EmailTemplate> toEntityList(List<EmailTemplateDTO> emailTemplateDTOs);
+
+    @Mapping(target = "uuid", ignore = true)
+    @Mapping(target = "createdOn", ignore = true)
+    void updateEmailTemplateFromDto(EmailTemplateDTO emailTemplateDTO, @MappingTarget EmailTemplate emailTemplate);
 }

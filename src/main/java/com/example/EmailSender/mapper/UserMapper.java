@@ -1,13 +1,11 @@
 package com.example.EmailSender.mapper;
-import com.example.EmailSender.domain.EmailJob;
 import com.example.EmailSender.domain.Role;
 import com.example.EmailSender.domain.User;
-import com.example.EmailSender.dto.EmailJobDTO;
 import com.example.EmailSender.dto.RoleDTO;
 import com.example.EmailSender.dto.UserDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingTarget;
 
 
 import java.util.Set;
@@ -23,5 +21,8 @@ public interface UserMapper {
 
     Set<Role> toEntitySet(Set<RoleDTO> roleDTOs);
 
+    @Mapping(target = "createdOn", ignore = true)
+    @Mapping(target = "uuid", ignore = true)
+    void updateUserFromDto(UserDTO userDTO, @MappingTarget User user);
 
 }

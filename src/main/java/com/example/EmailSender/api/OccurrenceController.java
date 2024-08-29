@@ -6,7 +6,6 @@ import com.example.EmailSender.service.OccurrenceService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -24,7 +23,7 @@ public class OccurrenceController {
 
     public ResponseEntity<OccurrenceDTO> createOccurrence(@RequestBody @Valid OccurrenceDTO occurrenceDTO) {
         OccurrenceDTO createdOccurrence = occurrenceService.createOccurrence(occurrenceDTO);
-        return ResponseEntity.status(200).body(createdOccurrence);
+        return ResponseEntity.status(201).body(createdOccurrence);
     }
 
     @GetMapping("/uuid/{uuid}")
@@ -45,14 +44,6 @@ public class OccurrenceController {
         return ResponseEntity.ok(occurrences);
     }
 
-    @GetMapping("/email-job/{uuid}")
-    public ResponseEntity<List<OccurrenceDTO>> getOccurrencesByEmailJob(
-            @PathVariable String uuid,
-            @RequestParam @Valid LocalDateTime dateFrom,
-            @RequestParam @Valid LocalDateTime dateTo) {
-        List<OccurrenceDTO> occurrences = occurrenceService.getOccurrencesForEmailJob(uuid, dateFrom, dateTo);
-        return ResponseEntity.ok(occurrences);
-    }
 
     @PutMapping("/{uuid}")
     public ResponseEntity<OccurrenceDTO> updateOccurrence(
@@ -72,5 +63,10 @@ public class OccurrenceController {
     public ResponseEntity<List<OccurrenceDTO>> getOccurrencesByErrorDescription(@PathVariable String errorDescription) {
         List<OccurrenceDTO> occurrences = occurrenceService.getOccurrencesByErrorDescription(errorDescription);
         return ResponseEntity.ok(occurrences);
+    }
+
+    @GetMapping("/email-job/{emailJobUuid}")
+    public List<OccurrenceDTO> getOccurrencesByEmailJobUuid(@PathVariable String emailJobUuid) {
+        return occurrenceService.getOccurrenceByEmailJob(emailJobUuid);
     }
 }

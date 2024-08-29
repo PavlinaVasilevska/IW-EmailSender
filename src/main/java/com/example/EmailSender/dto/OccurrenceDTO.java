@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OccurrenceDTO extends BaseDTO{
+
     private StatusEnum status;
 
     private String errorDescription;

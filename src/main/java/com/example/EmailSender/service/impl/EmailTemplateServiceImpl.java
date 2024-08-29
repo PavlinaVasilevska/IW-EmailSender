@@ -7,8 +7,10 @@ import com.example.EmailSender.mapper.EmailTemplateMapper;
 import com.example.EmailSender.repository.EmailTemplateRepository;
 import com.example.EmailSender.service.EmailTemplateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -82,21 +84,28 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     public EmailTemplateDTO updateEmailTemplate(String uuid, EmailTemplateDTO emailTemplateDTO) {
-        EmailTemplate emailTemplate = emailTemplateRepository.findByUuid(uuid);
-        if (emailTemplate == null) {
-            throw new ResourceNotFoundException("Email template with uuid " + uuid + " not found");
+        EmailTemplate existingEmailTemplate = emailTemplateRepository.findByUuid(uuid);
+        if (existingEmailTemplate == null) {
+            throw new ResourceNotFoundException("Email template with UUID: " + uuid + " not found");
         }
 
-        emailTemplate.setSubject(emailTemplateDTO.getSubject());
-        emailTemplate.setBody(emailTemplateDTO.getBody());
+        if (emailTemplateDTO.getUuid() != null && !emailTemplateDTO.getUuid().equals(existingEmailTemplate.getUuid())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
+        }
 
-        emailTemplate = emailTemplateRepository.save(emailTemplate);
-        return emailTemplateMapper.toDto(emailTemplate);
+        if (emailTemplateDTO.getCreatedOn() != null && !emailTemplateDTO.getCreatedOn().equals(existingEmailTemplate.getCreatedOn())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
+        }
+
+        emailTemplateMapper.updateEmailTemplateFromDto(emailTemplateDTO, existingEmailTemplate);
+        EmailTemplate updatedEmailTemplate = emailTemplateRepository.save(existingEmailTemplate);
+        return emailTemplateMapper.toDto(updatedEmailTemplate);
     }
+
 
     @Override
     public void deleteEmailTemplate(String uuid) {
-        if (!emailTemplateRepository.existsByUuid(uuid)) {
+        if (emailTemplateRepository.findByUuid(uuid)==null) {
             throw new ResourceNotFoundException("EmailTemplate not found with UUID: " + uuid);
         }
         emailTemplateRepository.deleteByUuid(uuid);

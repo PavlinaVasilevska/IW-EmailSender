@@ -1,5 +1,5 @@
 package com.example.EmailSender.domain;
-import com.example.EmailSender.enumeration.RepetitionEnum;
+import com.example.EmailSender.enumeration.FrequencyEnum;
 import com.example.EmailSender.infrastructure.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -35,5 +35,5 @@ public class EmailJob extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "frequency", nullable = false)
-    private RepetitionEnum frequency;
+    private FrequencyEnum frequency;
 }

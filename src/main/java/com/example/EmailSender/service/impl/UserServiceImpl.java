@@ -1,9 +1,6 @@
 package com.example.EmailSender.service.impl;
 import com.example.EmailSender.domain.Role;
-import com.example.EmailSender.dto.RoleDTO;
 import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
-import com.example.EmailSender.mapper.RoleMapper;
-import com.example.EmailSender.repository.RoleRepository;
 import com.example.EmailSender.repository.UserRepository;
 import com.example.EmailSender.domain.User;
 import com.example.EmailSender.dto.UserDTO;
@@ -11,10 +8,12 @@ import com.example.EmailSender.mapper.UserMapper;
 import com.example.EmailSender.service.RoleService;
 import com.example.EmailSender.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,65 +29,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-        String email = userDTO.getEmail();
-        String username = userDTO.getUsername();
-        String password = userDTO.getPassword();
-
-
-        User existingUserByEmail = userRepository.findByEmail(email);
-        if (existingUserByEmail != null) {
-            throw new IllegalStateException(String.format("User with the email address '%s' already exists.", email));
+        if (userRepository.findByEmail(userDTO.getEmail()) != null) {
+            throw new IllegalStateException(String.format("User with the email address '%s' already exists.", userDTO.getEmail()));
+        }
+        if (userRepository.findByUsername(userDTO.getUsername()) != null) {
+            throw new IllegalStateException(String.format("User with the username '%s' already exists.", userDTO.getUsername()));
         }
 
-        User existingUserByUsername = userRepository.findByUsername(username);
-        if (existingUserByUsername != null) {
-            throw new IllegalStateException(String.format("User with the username '%s' already exists.", username));
-        }
+        // Validate roles
+        Set<Role> roles = userDTO.getRoles().stream()
+                .map(roleDTO -> roleService.getRoleByname(roleDTO.getName()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-        if (userDTO.getName() == null || userDTO.getName().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
-        if (userDTO.getSurname() == null || userDTO.getSurname().isEmpty()) {
-            throw new IllegalArgumentException("Surname cannot be null or empty.");
-        }
-        if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty.");
-        }
-        if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-            throw new IllegalArgumentException("Email format is invalid.");
-        }
-
-        Set<Role> roles = new HashSet<>();
-        if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
-            for (RoleDTO roleDTO : userDTO.getRoles()) {
-                if (roleDTO.getName() == null || roleDTO.getName().isEmpty()) {
-                    throw new IllegalArgumentException("Role name cannot be null or empty.");
-                }
-
-                String roleName = roleDTO.getName();
-                Role foundRole = roleService.getRoleByname(roleName);
-
-                if (foundRole == null) {
-                    throw new ResourceNotFoundException("Role not found with name: " + roleName);
-                }
-
-                roles.add(foundRole);
-            }
-        } else {
+        if (roles.isEmpty()) {
             throw new ResourceNotFoundException("Role information is missing.");
         }
 
         User user = userMapper.toEntity(userDTO);
-        user.setUsername(username);
-        user.setName(userDTO.getName());
-        user.setSurname(userDTO.getSurname());
-        user.setEmail(email);
         user.setRoles(roles);
-        user.setPassword(password);
 
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
+
     @Override
     public UserDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
@@ -135,58 +99,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO updateUser(String uuid, UserDTO userDTO) {
-        if (uuid == null || uuid.isEmpty()) {
-            throw new IllegalArgumentException("UUID cannot be null or empty.");
-        }
-
         User existingUser = userRepository.findByUuid(uuid);
         if (existingUser == null) {
             throw new ResourceNotFoundException("User not found with uuid: " + uuid);
         }
 
-        String email = userDTO.getEmail();
-        if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty.");
-        }
-        if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-            throw new IllegalArgumentException("Email format is invalid.");
+        if (userDTO.getUuid() != null && !userDTO.getUuid().equals(existingUser.getUuid())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
         }
 
-        Set<Role> roles = new HashSet<>();
-        if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
-            for (RoleDTO roleDTO : userDTO.getRoles()) {
-                String roleName = roleDTO.getName();
+        if (userDTO.getCreatedOn() != null && !userDTO.getCreatedOn().equals(existingUser.getCreatedOn())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
+        }
+        userMapper.updateUserFromDto(userDTO, existingUser);
 
-                if (roleName == null || roleName.isEmpty()) {
-                    continue;
-                }
+        Set<Role> roles = userDTO.getRoles().stream()
+                .map(roleDTO -> roleService.getRoleByname(roleDTO.getName()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-                Role foundRole = roleService.getRoleByname(roleName);
-                if (foundRole == null) {
-                    throw new ResourceNotFoundException("Role not found with name: " + roleName);
-                }
-                roles.add(foundRole);
-            }
-        } else {
-            throw new IllegalArgumentException("At least one role must be provided.");
+        if (roles.isEmpty()) {
+            throw new ResourceNotFoundException("Role information is missing.");
         }
 
-        if (userDTO.getName() != null) {
-            existingUser.setName(userDTO.getName());
-        }
-
-        if (userDTO.getSurname() != null) {
-            existingUser.setSurname(userDTO.getSurname());
-        }
-
-        existingUser.setEmail(email);
         existingUser.setRoles(roles);
-        existingUser.setPassword(userDTO.getPassword());
 
         User updatedUser = userRepository.save(existingUser);
         return userMapper.toDto(updatedUser);
     }
-
 
     @Override
     public void deleteUser(String uuid) {

@@ -21,7 +21,7 @@ public class EmailTemplateController {
     @PostMapping
     public ResponseEntity<EmailTemplateDTO> createEmailTemplate(@Valid @RequestBody EmailTemplateDTO emailTemplateDTO) {
         EmailTemplateDTO createdEmailTemplate = emailTemplateService.createEmailTemplate(emailTemplateDTO);
-        return ResponseEntity.status(200).body(createdEmailTemplate);
+        return ResponseEntity.status(201).body(createdEmailTemplate);
     }
 
     @GetMapping("/{uuid}")

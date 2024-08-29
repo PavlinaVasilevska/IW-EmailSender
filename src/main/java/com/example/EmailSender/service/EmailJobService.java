@@ -1,7 +1,7 @@
 package com.example.EmailSender.service;
 import com.example.EmailSender.domain.EmailJob;
 import com.example.EmailSender.dto.EmailJobDTO;
-import com.example.EmailSender.enumeration.RepetitionEnum;
+import com.example.EmailSender.enumeration.FrequencyEnum;
 import com.example.EmailSender.enumeration.StatusEnum;
 
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ public interface EmailJobService {
 
     void deleteEmailJob(String uuid);
 
-    List<EmailJob> getActiveEmailJobs(LocalDateTime currentDate, RepetitionEnum frequency);
+    List<EmailJob> getActiveEmailJobs(LocalDateTime currentDate, FrequencyEnum frequency);
 
     void saveOccurrence(EmailJob emailJob, StatusEnum status, String errorDescription);
 

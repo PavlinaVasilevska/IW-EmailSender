@@ -20,4 +20,6 @@ public interface OccurrenceService {
     void deleteOccurrence(String uuid);
 
     List<OccurrenceDTO> getOccurrencesByErrorDescription(String errorDescription);
+
+    List<OccurrenceDTO>getOccurrenceByEmailJob(String emailJobUuid);
 }

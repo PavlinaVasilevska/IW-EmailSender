@@ -8,7 +8,9 @@ import com.example.EmailSender.repository.RoleRepository;
 import com.example.EmailSender.service.RoleService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,15 +72,23 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDTO updateRole(String uuid, RoleDTO roleDTO) {
         Role existingRole = roleRepository.findByUuid(uuid);
-        if(existingRole == null)
-        {
+        if (existingRole == null) {
             throw new ResourceNotFoundException("Role with UUID: " + uuid + " not found");
         }
 
-        existingRole.setName(roleDTO.getName());
-        Role updatedRole=roleRepository.save(existingRole);
+        if (roleDTO.getUuid() != null && !roleDTO.getUuid().equals(existingRole.getUuid())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
+        }
+        if (roleDTO.getCreatedOn() != null && !roleDTO.getCreatedOn().equals(existingRole.getCreatedOn())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
+        }
+
+        roleMapper.updateRoleFromDto(roleDTO, existingRole);
+
+        Role updatedRole = roleRepository.save(existingRole);
         return roleMapper.toDto(updatedRole);
     }
+
 
     @Override
     public void deleteRole(String uuid) {

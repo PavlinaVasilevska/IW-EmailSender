@@ -2,7 +2,7 @@ package com.example.EmailSender.service.impl;
 
 import com.example.EmailSender.domain.*;
 import com.example.EmailSender.dto.EmailJobDTO;
-import com.example.EmailSender.enumeration.RepetitionEnum;
+import com.example.EmailSender.enumeration.FrequencyEnum;
 import com.example.EmailSender.enumeration.StatusEnum;
 import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.mapper.EmailJobMapper;
@@ -11,8 +11,11 @@ import com.example.EmailSender.service.EmailJobService;
 import com.example.EmailSender.service.EmailTemplateService;
 import com.example.EmailSender.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -77,6 +80,9 @@ public class EmailJobServiceImpl implements EmailJobService {
                 .map(emailJobMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     public List<EmailJobDTO> getAllEmailJobs() {
         return emailJobRepository.findAll()
@@ -87,80 +93,40 @@ public class EmailJobServiceImpl implements EmailJobService {
 
     @Override
     public EmailJobDTO updateEmailJob(String uuid, EmailJobDTO emailJobDTO) {
-
-        EmailJob emailJob = emailJobRepository.findByUuid(uuid);
-        if (emailJob == null) {
+        EmailJob existingEmailJob = emailJobRepository.findByUuid(uuid);
+        if (existingEmailJob == null) {
             throw new ResourceNotFoundException("EmailJob not found with UUID: " + uuid);
         }
-
-        if (emailJobDTO.getSender() != null) {
-            User sender = userService.getByUuid(emailJobDTO.getSender().getUuid());
-            if (sender != null) {
-                emailJob.setSender(sender);
-            }
-        }
-        if (emailJobDTO.getEmailTemplate() != null) {
-            EmailTemplate emailTemplate = emailTemplateService.getTemplateByUuid(emailJobDTO.getEmailTemplate().getUuid());
-            if (emailTemplate != null) {
-                emailJob.setEmailTemplate(emailTemplate);
-            }
-        }
-        if (emailJobDTO.getStartDate() != null) {
-            emailJob.setStartDate(emailJobDTO.getStartDate());
-        }
-        if (emailJobDTO.getEndDate() != null) {
-            emailJob.setEndDate(emailJobDTO.getEndDate());
-        }
-        if (emailJobDTO.getFrequency() != null) {
-            emailJob.setFrequency(emailJobDTO.getFrequency());
-        }
-        if (emailJobDTO.getEnabled() != null) {
-            emailJob.setEnabled(emailJobDTO.getEnabled());
-        }
-        if (emailJobDTO.getStartDate() != null) {
-            emailJob.setStartDate(emailJobDTO.getStartDate());
-        }
-        if (emailJobDTO.getEndDate() != null) {
-            emailJob.setEndDate(emailJobDTO.getEndDate());
+        if (emailJobDTO.getUuid() != null && !emailJobDTO.getUuid().equals(existingEmailJob.getUuid())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
         }
 
-        EmailJob updatedEmailJob = emailJobRepository.save(emailJob);
+        if (emailJobDTO.getCreatedOn() != null && !emailJobDTO.getCreatedOn().equals(existingEmailJob.getCreatedOn())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
+        }
 
+        emailJobMapper.updateFromDto(emailJobDTO, existingEmailJob);
+        EmailJob updatedEmailJob = emailJobRepository.save(existingEmailJob);
         return emailJobMapper.toDto(updatedEmailJob);
     }
+
 
 
     @Override
     public void deleteEmailJob(String uuid) {
         EmailJob emailJob = emailJobRepository.findByUuid(uuid);
+        if (emailJob==null)
+        {
+            throw new ResourceNotFoundException("EmailJob not found with uuid: " + uuid);
+        }
         emailJobRepository.delete(emailJob);
     }
 
     @Override
-    public List<EmailJob> getActiveEmailJobs(LocalDateTime currentDate, RepetitionEnum frequency) {
+    public List<EmailJob> getActiveEmailJobs(LocalDateTime currentDate, FrequencyEnum frequency) {
         List<EmailJob> emailJobs = emailJobRepository.findActiveMailJobs(currentDate, frequency);
 
-        return emailJobs.stream()
-                .filter(job -> shouldSendEmail(job, currentDate))
-                .collect(Collectors.toList());
-    }
-
-    private boolean shouldSendEmail(EmailJob job, LocalDateTime currentDate) {
-        LocalDateTime startDate = job.getStartDate();
-
-        switch (job.getFrequency()) {
-            case DAILY:
-                return true;
-            case WEEKLY:
-                return startDate.getDayOfWeek() == currentDate.getDayOfWeek();
-            case MONTHLY:
-                return startDate.getDayOfMonth() == currentDate.getDayOfMonth();
-            case YEARLY:
-                return startDate.getDayOfMonth() == currentDate.getDayOfMonth() &&
-                        startDate.getMonth() == currentDate.getMonth();
-            default:
-                return false;
-        }
+        return emailJobs;
     }
 
     @Override

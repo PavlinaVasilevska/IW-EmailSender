@@ -20,9 +20,9 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
         UserDTO createdUser = userService.createUser(userDTO);
-        return ResponseEntity.status(200).body(createdUser);
+        return ResponseEntity.status(201).body(createdUser);
     }
 
     @GetMapping("/username/{username}")
@@ -41,7 +41,6 @@ public class UserController {
     public ResponseEntity<UserDTO> getUserByUuid(@PathVariable String uuid) {
         UserDTO user = userService.getUserByUuid(uuid);
         return ResponseEntity.ok(user);
-
 
     }
 

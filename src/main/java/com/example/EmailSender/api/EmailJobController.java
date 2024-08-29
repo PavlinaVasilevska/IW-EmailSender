@@ -2,6 +2,7 @@ package com.example.EmailSender.api;
 import com.example.EmailSender.dto.EmailJobDTO;
 import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.EmailJobService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(EndPoints.EMAIL_JOBS)
+@CrossOrigin(origins = "http://localhost:4200")
 public class EmailJobController {
 
     private final EmailJobService emailJobService;
@@ -19,9 +21,9 @@ public class EmailJobController {
 
 
     @PostMapping
-    public ResponseEntity<EmailJobDTO> createEmailJob(@RequestBody EmailJobDTO emailJobDTO) {
+    public ResponseEntity<EmailJobDTO> createEmailJob(@RequestBody @Valid EmailJobDTO emailJobDTO) {
         EmailJobDTO createdEmailJob = emailJobService.createEmailJob(emailJobDTO);
-        return ResponseEntity.status(200).body(createdEmailJob);
+        return ResponseEntity.status(201).body(createdEmailJob);
     }
 
     @GetMapping("/{uuid}")
@@ -31,6 +33,7 @@ public class EmailJobController {
 
     }
 
+
     @GetMapping
     public ResponseEntity<List<EmailJobDTO>> getAllEmailJobs() {
         List<EmailJobDTO> emailJobs = emailJobService.getAllEmailJobs();
@@ -38,7 +41,7 @@ public class EmailJobController {
     }
 
     @PutMapping("/{uuid}")
-    public ResponseEntity<EmailJobDTO> updateEmailJob(@PathVariable String uuid, @RequestBody EmailJobDTO emailJobDTO) {
+    public ResponseEntity<EmailJobDTO> updateEmailJob(@PathVariable String uuid, @RequestBody @Valid EmailJobDTO emailJobDTO) {
         EmailJobDTO updatedEmailJob = emailJobService.updateEmailJob(uuid, emailJobDTO);
         return ResponseEntity.ok(updatedEmailJob);
     }

@@ -2,7 +2,7 @@ package com.example.EmailSender.repository;
 
 import com.example.EmailSender.domain.EmailJob;
 import com.example.EmailSender.domain.EmailTemplate;
-import com.example.EmailSender.enumeration.RepetitionEnum;
+import com.example.EmailSender.enumeration.FrequencyEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +19,6 @@ public interface EmailJobRepository extends JpaRepository<EmailJob, Long> {
             "AND e.startDate <= :currentDate " +
             "AND e.frequency = :frequency")
     List<EmailJob> findActiveMailJobs(@Param("currentDate") LocalDateTime currentDate,
-                                      @Param("frequency") RepetitionEnum frequency);
+                                      @Param("frequency") FrequencyEnum frequency);
 
 }

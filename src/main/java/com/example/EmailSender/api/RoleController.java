@@ -21,7 +21,7 @@ public class RoleController {
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<RoleDTO> createRole(@RequestBody @Valid RoleDTO roleDTO) {
         RoleDTO createdRole = roleService.createRole(roleDTO);
-        return ResponseEntity.status(200).body(createdRole);
+        return ResponseEntity.status(201).body(createdRole);
     }
 
     @GetMapping("uuid/{uuid}")

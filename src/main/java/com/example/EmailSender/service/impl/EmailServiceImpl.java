@@ -1,7 +1,7 @@
 package com.example.EmailSender.service.impl;
 import com.example.EmailSender.domain.EmailJob;
 import com.example.EmailSender.dto.OccurrenceDTO;
-import com.example.EmailSender.enumeration.RepetitionEnum;
+import com.example.EmailSender.enumeration.FrequencyEnum;
 import com.example.EmailSender.enumeration.StatusEnum;
 import com.example.EmailSender.service.EmailJobService;
 import com.example.EmailSender.service.EmailService;
@@ -32,7 +32,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendEmails(RepetitionEnum frequency) {
+    public void sendEmails(FrequencyEnum frequency) {
 
         List<EmailJob> activeEmailJobs = emailJobService.getActiveEmailJobs(LocalDateTime.now(), frequency);
         for (EmailJob emailJob : activeEmailJobs) {
@@ -78,9 +78,9 @@ public class EmailServiceImpl implements EmailService {
         javaMailSender.send(adminMessage);
     }
 
-    private LocalDateTime dateFrom(RepetitionEnum repetitionEnum) {
+    private LocalDateTime dateFrom(FrequencyEnum frequencyEnum) {
 
-        return switch (repetitionEnum) {
+        return switch (frequencyEnum) {
             case DAILY -> LocalDate.now().atStartOfDay();
             case WEEKLY -> LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
             case MONTHLY -> LocalDate.now().withDayOfMonth(1).atStartOfDay();
@@ -88,9 +88,9 @@ public class EmailServiceImpl implements EmailService {
         };
     }
 
-    private LocalDateTime dateTo(RepetitionEnum repetitionEnum) {
+    private LocalDateTime dateTo(FrequencyEnum frequencyEnum) {
 
-        return switch (repetitionEnum) {
+        return switch (frequencyEnum) {
             case DAILY -> LocalDate.now().atTime(LocalTime.MAX);
             case WEEKLY ->
                     LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX);
