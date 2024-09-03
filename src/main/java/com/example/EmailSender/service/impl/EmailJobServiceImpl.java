@@ -1,18 +1,19 @@
 package com.example.EmailSender.service.impl;
-
 import com.example.EmailSender.domain.*;
 import com.example.EmailSender.dto.EmailJobDTO;
 import com.example.EmailSender.enumeration.FrequencyEnum;
 import com.example.EmailSender.enumeration.StatusEnum;
 import com.example.EmailSender.infrastructure.exception.ResourceNotFoundException;
 import com.example.EmailSender.mapper.EmailJobMapper;
+import com.example.EmailSender.mapper.EmailTemplateMapper;
+import com.example.EmailSender.mapper.UserMapper;
 import com.example.EmailSender.repository.*;
 import com.example.EmailSender.service.EmailJobService;
 import com.example.EmailSender.service.EmailTemplateService;
+import com.example.EmailSender.service.RoleService;
 import com.example.EmailSender.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -62,6 +63,9 @@ public class EmailJobServiceImpl implements EmailJobService {
     @Override
     public EmailJobDTO getEmailJobDtoByUuid(String uuid) {
         EmailJob emailJob = emailJobRepository.findByUuid(uuid);
+        if (emailJob == null) {
+            throw new ResourceNotFoundException("Email job with uuid: " +uuid+ " not found");
+        }
         return emailJobMapper.toDto(emailJob);
     }
 
@@ -95,6 +99,7 @@ public class EmailJobServiceImpl implements EmailJobService {
         if (existingEmailJob == null) {
             throw new ResourceNotFoundException("EmailJob not found with UUID: " + uuid);
         }
+
         if (emailJobDTO.getUuid() != null && !emailJobDTO.getUuid().equals(existingEmailJob.getUuid())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
         }
@@ -103,11 +108,44 @@ public class EmailJobServiceImpl implements EmailJobService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
         }
 
-        emailJobMapper.updateFromDto(emailJobDTO, existingEmailJob);
+        if (emailJobDTO.getSender() != null && emailJobDTO.getSender().getUuid() != null) {
+            User sender = userService.getByUuid(emailJobDTO.getSender().getUuid());
+            existingEmailJob.setSender(sender);
+        }
+
+        if (emailJobDTO.getEmailTemplate() != null && emailJobDTO.getEmailTemplate().getUuid() != null) {
+            EmailTemplate template = emailTemplateService.getTemplateByUuid(emailJobDTO.getEmailTemplate().getUuid());
+            existingEmailJob.setEmailTemplate(template);
+        }
+
+        if (emailJobDTO.getStartDate() != null) {
+            existingEmailJob.setStartDate(emailJobDTO.getStartDate());
+        }
+
+        if (emailJobDTO.getEndDate() != null) {
+            existingEmailJob.setEndDate(emailJobDTO.getEndDate());
+        }
+
+        if (emailJobDTO.getFrequency() != null) {
+            try {
+                FrequencyEnum frequency = FrequencyEnum.valueOf(emailJobDTO.getFrequency().name());
+                existingEmailJob.setFrequency(frequency);
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid frequency value: " + emailJobDTO.getFrequency().name());
+            }
+        }
+
+        if (emailJobDTO.getEnabled() != null) {
+            existingEmailJob.setEnabled(emailJobDTO.getEnabled());
+        }
+
+        if (emailJobDTO.getReceivers() != null) {
+            existingEmailJob.setReceivers(emailJobDTO.getReceivers());
+        }
+
         EmailJob updatedEmailJob = emailJobRepository.save(existingEmailJob);
         return emailJobMapper.toDto(updatedEmailJob);
     }
-
 
 
     @Override
