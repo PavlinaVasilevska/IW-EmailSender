@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(EndPoints.OCCURRENCES)
+@CrossOrigin(origins = "http://localhost:4200")
 public class OccurrenceController {
 
     private final OccurrenceService occurrenceService;

@@ -36,7 +36,6 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException(String.format("User with the username '%s' already exists.", userDTO.getUsername()));
         }
 
-        // Validate roles
         Set<Role> roles = userDTO.getRoles().stream()
                 .map(roleDTO -> roleService.getRoleByname(roleDTO.getName()))
                 .filter(Objects::nonNull)

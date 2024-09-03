@@ -1,4 +1,5 @@
 package com.example.EmailSender.config;
+
 import com.example.EmailSender.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -33,7 +34,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
     private static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
@@ -41,47 +41,28 @@ public class SecurityConfig {
             "/swagger-resources"
     };
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(SWAGGER_WHITELIST).permitAll() // Allow Swagger URLs
-                        .anyRequest().permitAll() // Allow all other requests to all endpoints
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        .requestMatchers("/emailjobs/**").hasRole("ADMIN")
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authenticationProvider(daoAuthenticationProvider()) // Use DaoAuthenticationProvider
+                .authenticationProvider(daoAuthenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(authz -> authz
-//                                .requestMatchers(SWAGGER_WHITELIST).permitAll() // Allow Swagger URLs
-//                                .requestMatchers("/api/email-templates", "/api/users", "/authenticate", "/register", "/send-email").permitAll()
-////                        .requestMatchers("/api/roles").hasRole("ADMIN")
-//                                .anyRequest().authenticated()
-//                )
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                )
-//                .authenticationProvider(daoAuthenticationProvider()) // Use DaoAuthenticationProvider
-//                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
-//    }
-
-
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService); // UserService should implement UserDetailsService
+        provider.setUserDetailsService(userService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }

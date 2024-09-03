@@ -13,5 +13,4 @@ public interface EmailTemplateRepository extends JpaRepository <EmailTemplate, L
     List<EmailTemplate> findByBodyContaining(String keyword);
     EmailTemplate findByBody(String body);
     void deleteByUuid(String uuid);
-    boolean existsByUuid(String uuid);
 }

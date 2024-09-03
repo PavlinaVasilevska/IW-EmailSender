@@ -81,8 +81,6 @@ public class EmailJobServiceImpl implements EmailJobService {
                 .collect(Collectors.toList());
     }
 
-
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     public List<EmailJobDTO> getAllEmailJobs() {
         return emailJobRepository.findAll()

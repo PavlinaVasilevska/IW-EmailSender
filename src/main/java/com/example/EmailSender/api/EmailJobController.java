@@ -4,6 +4,7 @@ import com.example.EmailSender.infrastructure.EndPoints;
 import com.example.EmailSender.service.EmailJobService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class EmailJobController {
         this.emailJobService = emailJobService;
     }
 
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<EmailJobDTO> createEmailJob(@RequestBody @Valid EmailJobDTO emailJobDTO) {
         EmailJobDTO createdEmailJob = emailJobService.createEmailJob(emailJobDTO);
@@ -33,7 +34,7 @@ public class EmailJobController {
 
     }
 
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<EmailJobDTO>> getAllEmailJobs() {
         List<EmailJobDTO> emailJobs = emailJobService.getAllEmailJobs();

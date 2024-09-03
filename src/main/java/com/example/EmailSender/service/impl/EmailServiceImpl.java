@@ -89,14 +89,11 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private LocalDateTime dateTo(FrequencyEnum frequencyEnum) {
-
         return switch (frequencyEnum) {
             case DAILY -> LocalDate.now().atTime(LocalTime.MAX);
-            case WEEKLY ->
-                    LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX);
+            case WEEKLY -> LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX);
             case MONTHLY -> LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX);
-            case YEARLY ->
-                    LocalDate.now().withMonth(Month.DECEMBER.getValue()).withDayOfMonth(31).atTime(LocalTime.MAX);
+            case YEARLY -> LocalDate.now().withMonth(Month.DECEMBER.getValue()).withDayOfMonth(31).atTime(LocalTime.MAX);
         };
     }
 
