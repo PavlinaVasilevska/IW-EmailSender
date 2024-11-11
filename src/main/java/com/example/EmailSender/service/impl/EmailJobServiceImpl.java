@@ -81,12 +81,20 @@ public class EmailJobServiceImpl implements EmailJobService {
                 .map(emailJobMapper::toDto)
                 .collect(Collectors.toList());
     }
+//
+//    @Override
+//    public List<EmailJobDTO> getAllEmailJobs() {
+//        return emailJobRepository.findAll()
+//                .stream()
+//                .map(emailJobMapper::toDto)
+//                .toList();
+//    }
 
     @Override
     public List<EmailJobDTO> getAllEmailJobs() {
-        return emailJobRepository.findAll()
+        return emailJobRepository.findAllByOrderByStartDateDesc() // Retrieve sorted email jobs
                 .stream()
-                .map(emailJobMapper::toDto)
+                .map(emailJobMapper::toDto) // Map to DTO
                 .toList();
     }
 

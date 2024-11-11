@@ -20,5 +20,6 @@ public interface EmailJobRepository extends JpaRepository<EmailJob, Long> {
             "AND e.frequency = :frequency")
     List<EmailJob> findActiveMailJobs(@Param("currentDate") LocalDateTime currentDate,
                                       @Param("frequency") FrequencyEnum frequency);
-
+    // Method to fetch all email jobs sorted by startDate in descending order
+    List<EmailJob> findAllByOrderByStartDateDesc();
 }
