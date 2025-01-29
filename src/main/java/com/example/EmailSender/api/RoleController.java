@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(EndPoints.ROLES)
+@CrossOrigin(origins = "http://localhost:4200")
 public class RoleController {
 
     private final RoleService roleService;
