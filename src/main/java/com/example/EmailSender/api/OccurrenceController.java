@@ -57,7 +57,7 @@ public class OccurrenceController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> deleteOccurrence(@PathVariable String uuid) {
         occurrenceService.deleteOccurrence(uuid);
-        return ResponseEntity.noContent().build(); // Status 204 for no content
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/error-description/{errorDescription}")
