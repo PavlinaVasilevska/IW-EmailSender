@@ -17,7 +17,7 @@ public class EmailSchedulerServiceImpl implements EmailSchedulerService {
         this.emailService = emailService;
     }
 
-    @Scheduled(cron = "0 0 10,17 * * *")
+    @Scheduled(cron = "0 30 11,16 * * *")
     @Override
     public void performScheduledTasks() {
         for (FrequencyEnum frequency : FrequencyEnum.values()) {

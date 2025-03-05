@@ -29,10 +29,15 @@ public class SecurityConfig {
         this.userService = userService;
     }
 
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public static PasswordEncoder passwordEncoder() { // Додади static
+    return new BCryptPasswordEncoder();
+}
 
     private static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui/**",

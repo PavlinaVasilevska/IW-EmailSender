@@ -34,7 +34,7 @@ public class EmailJobController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<EmailJobDTO>> getAllEmailJobs() {
         List<EmailJobDTO> emailJobs = emailJobService.getAllEmailJobs();

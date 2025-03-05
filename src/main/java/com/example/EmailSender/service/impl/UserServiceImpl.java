@@ -8,9 +8,11 @@ import com.example.EmailSender.mapper.UserMapper;
 import com.example.EmailSender.service.RoleService;
 import com.example.EmailSender.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +28,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoleService roleService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
@@ -96,36 +101,75 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public UserDTO updateUser(String uuid, UserDTO userDTO) {
-        User existingUser = userRepository.findByUuid(uuid);
-        if (existingUser == null) {
-            throw new ResourceNotFoundException("User not found with uuid: " + uuid);
-        }
-
-        if (userDTO.getUuid() != null && !userDTO.getUuid().equals(existingUser.getUuid())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
-        }
-
-        if (userDTO.getCreatedOn() != null && !userDTO.getCreatedOn().equals(existingUser.getCreatedOn())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
-        }
-        userMapper.updateUserFromDto(userDTO, existingUser);
-
-        Set<Role> roles = userDTO.getRoles().stream()
-                .map(roleDTO -> roleService.getRoleByname(roleDTO.getName()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        if (roles.isEmpty()) {
-            throw new ResourceNotFoundException("Role information is missing.");
-        }
-
-        existingUser.setRoles(roles);
-
-        User updatedUser = userRepository.save(existingUser);
-        return userMapper.toDto(updatedUser);
+//    @Override
+//    public UserDTO updateUser(String uuid, UserDTO userDTO) {
+//        User existingUser = userRepository.findByUuid(uuid);
+//        if (existingUser == null) {
+//            throw new ResourceNotFoundException("User not found with uuid: " + uuid);
+//        }
+//
+//        if (userDTO.getUuid() != null && !userDTO.getUuid().equals(existingUser.getUuid())) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
+//        }
+//
+//        if (userDTO.getCreatedOn() != null && !userDTO.getCreatedOn().equals(existingUser.getCreatedOn())) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
+//        }
+//        userMapper.updateUserFromDto(userDTO, existingUser);
+//
+//        Set<Role> roles = userDTO.getRoles().stream()
+//                .map(roleDTO -> roleService.getRoleByname(roleDTO.getName()))
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toSet());
+//
+//        if (roles.isEmpty()) {
+//            throw new ResourceNotFoundException("Role information is missing.");
+//        }
+//
+//        existingUser.setRoles(roles);
+//
+//        User updatedUser = userRepository.save(existingUser);
+//        return userMapper.toDto(updatedUser);
+//    }
+@Override
+public UserDTO updateUser(String uuid, UserDTO userDTO) {
+    User existingUser = userRepository.findByUuid(uuid);
+    if (existingUser == null) {
+        throw new ResourceNotFoundException("User not found with uuid: " + uuid);
     }
+
+    if (userDTO.getUuid() != null && !userDTO.getUuid().equals(existingUser.getUuid())) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'uuid' field cannot be updated.");
+    }
+
+    if (userDTO.getCreatedOn() != null && !userDTO.getCreatedOn().equals(existingUser.getCreatedOn())) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'createdOn' field cannot be updated.");
+    }
+
+    // Мапирање на DTO во Entity
+    userMapper.updateUserFromDto(userDTO, existingUser);
+
+    // Проверка и енкрипција на лозинката
+    if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+        existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+    }
+
+    // Мапирање на роли
+    Set<Role> roles = userDTO.getRoles().stream()
+            .map(roleDTO -> roleService.getRoleByname(roleDTO.getName()))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+    if (roles.isEmpty()) {
+        throw new ResourceNotFoundException("Role information is missing.");
+    }
+
+    existingUser.setRoles(roles);
+
+    User updatedUser = userRepository.save(existingUser);
+    return userMapper.toDto(updatedUser);
+}
+
 
     @Override
     public void deleteUser(String uuid) {
